@@ -8,6 +8,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 import '@/assets/css/global.css'
 import '@/assets/css/responsive.css'
+import '@/assets/css/cinema.css'
 
 const app = createApp(App)
 // Vue3 配置方式（组合式API）

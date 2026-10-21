@@ -1,0 +1,55 @@
+:root {
+  --ink: #25313c;
+  --muted: #77838e;
+  --line: #e5e9ed;
+  --accent: #56738b;
+  --soft-blue: #edf2f6;
+  --canvas: #f7f8fa;
+  --el-color-primary: #56738b;
+  --el-color-primary-light-3: #899eaf;
+  --el-color-primary-light-5: #b0bfcb;
+  --el-color-primary-light-7: #d0dae2;
+  --el-color-primary-light-8: #e0e7ed;
+  --el-color-primary-light-9: #edf2f6;
+  --el-color-primary-dark-2: #405b72;
+  --el-text-color-primary: #25313c;
+  --el-border-radius-base: 7px;
+  --el-font-size-base: 14px;
+}
+body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif; color: var(--ink); font-size: 14px; background: var(--canvas); -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); }
+button, input { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid #56738b; outline-offset: 4px; }
+.cinema-page { max-width: 1280px; margin: 0 auto; }
+.page-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 28px; }
+.eyebrow { margin: 0 0 10px; font-size: 10px; font-weight: 600; letter-spacing: 2px; color: var(--muted); }
+.page-heading h1 { margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.8px; line-height: 1.4; }
+.page-description { margin: 9px 0 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 19px; }
+.section-heading h2 { font-size: 17px; font-weight: 600; margin: 0; }
+.section-heading small { color: var(--muted); font-size: 12px; }
+.text-link { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 500; }
+.surface { border: 1px solid var(--line); background: #fff; border-radius: 12px; }
+.cinema-app .el-button, .cinema-login .el-button { min-height: 36px; font-weight: 500; }
+.cinema-app .el-button + .el-button { margin-left: 0; }
+.cinema-app .el-table { --el-table-header-bg-color: #f7f9fb; --el-table-row-hover-bg-color: #f3f6f8; --el-table-border-color: var(--line); font-size: 13px; }
+.cinema-app .el-table th.el-table__cell { color: #6f7d89; font-weight: 500; }
+.cinema-app .el-table td.el-table__cell { padding: 14px 0; }
+.cinema-app .el-input__wrapper, .cinema-login .el-input__wrapper { border-radius: 7px; }
+.cinema-app .el-dialog { border-radius: 14px; max-width: calc(100vw - 32px); }
+.cinema-app .el-dialog__header { padding: 24px 26px 18px; border-bottom: 1px solid var(--line); margin-right: 0; }
+.cinema-app .el-dialog__body { padding: 24px 26px; }
+.cinema-app .el-dialog__title { font-size: 18px; }
+.cinema-app .el-pagination { --el-pagination-button-bg-color: #fff; }
+.cinema-app .el-loading-mask { border-radius: inherit; }
+.error-state { padding: 30px; text-align: center; color: var(--muted); }
+.error-state p { margin-bottom: 16px; }
+@media (max-width: 600px) {
+  .page-heading { margin-bottom: 22px; align-items: flex-start; flex-direction: column; gap: 14px; }
+  .page-heading h1 { font-size: 25px; }
+  .cinema-app .el-dialog__body { padding: 20px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}

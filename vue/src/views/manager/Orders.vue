@@ -377,7 +377,7 @@ background:
             margin: 0;
             letter-spacing: 4px;
             text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
-          ">🎬 假娃电影院票据</h1>
+          ">🎬 湖叶影院票据</h1>
           <div style="
             position: absolute;
             right: -20px;
@@ -420,7 +420,7 @@ background:
           line-height: 1.8;
         ">
           <p style="font-size:18px;color:#c00;margin:15px 0">
-            ✨ 假娃电影院期待您的到来 ٩(๑>◡<๑)۶ ✨
+            ✨ 湖叶影院期待您的到来 ٩(๑>◡<๑)۶ ✨
           </p>
           <div style="font-size:14px">
             <p>服务热线：400-888-1314</p>
@@ -498,7 +498,7 @@ const fallbackToSimpleCanvas = (row) => {
     ctx.fillStyle = '#c00';
     ctx.font = 'bold 32px SimSun';
     ctx.textAlign = 'center';
-    ctx.fillText('🎬 假娃电影院票据', canvas.width / 2, 80);
+    ctx.fillText('🎬 湖叶影院票据', canvas.width / 2, 80);
 
     // 绘制电影票信息
     ctx.fillStyle = '#333333';

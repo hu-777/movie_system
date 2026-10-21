@@ -1,151 +1,45 @@
 <template>
-  <div class="login-container">
-    <div class="login-box">
-      <div style="font-weight: bold; font-size: 24px; text-align: center; margin-bottom: 30px; color: #1450aa">用户注册</div>
-      
-      <!-- 步骤指示器 -->
-      <div class="steps">
-        <div :class="['step', { 'active': step === 1, 'completed': step > 1 }]">1. 输入账号</div>
-        <div :class="['step', { 'active': step === 2, 'completed': step > 2 }]">2. 回答密保问题</div>
-        <div :class="['step', { 'active': step === 3 }]">3. 设置个人信息</div>
-      </div>
-
-      <!-- 第一步：输入账号，密码，确认密码 -->
-      <el-form v-if="step === 1" :model="form" ref="formRef" :rules="step1Rules">
-        <el-form-item prop="username">
-          <el-input :prefix-icon="User" size="large" v-model="form.username" placeholder="请输入账号" />
-        </el-form-item>
-        <el-form-item prop="password">
-          <el-input
-            :prefix-icon="Lock"
-            size="large"
-            v-model="form.password"
-            placeholder="请输入密码"
-            show-password
-            @input="checkPasswordRequirements"
-          />
-          <!-- 密码强度指示器 -->
-          <div style="margin-top: 10px;">
-            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">密码要求：</div>
-            <div style="display: flex; flex-direction: column; gap: 6px;">
-              <div class="requirement-item">
-                <i v-if="passwordRequirements.length" class="el-icon-check text-success" style="font-size: 16px;"></i>
-                <i v-else class="el-icon-close text-danger" style="font-size: 16px;"></i>
-                <span :class="passwordRequirements.length ? 'text-success' : 'text-danger'">至少8个字符</span>
-              </div>
-              <div class="requirement-item">
-                <i v-if="passwordRequirements.uppercase" class="el-icon-check text-success" style="font-size: 16px;"></i>
-                <i v-else class="el-icon-close text-danger" style="font-size: 16px;"></i>
-                <span :class="passwordRequirements.uppercase ? 'text-success' : 'text-danger'">包含大写字母</span>
-              </div>
-              <div class="requirement-item">
-                <i v-if="passwordRequirements.lowercase" class="el-icon-check text-success" style="font-size: 16px;"></i>
-                <i v-else class="el-icon-close text-danger" style="font-size: 16px;"></i>
-                <span :class="passwordRequirements.lowercase ? 'text-success' : 'text-danger'">包含小写字母</span>
-              </div>
-              <div class="requirement-item">
-                <i v-if="passwordRequirements.number" class="el-icon-check text-success" style="font-size: 16px;"></i>
-                <i v-else class="el-icon-close text-danger" style="font-size: 16px;"></i>
-                <span :class="passwordRequirements.number ? 'text-success' : 'text-danger'">包含数字</span>
-              </div>
-              <div class="requirement-item">
-                <i v-if="passwordRequirements.specialChar" class="el-icon-check text-success" style="font-size: 16px;"></i>
-                <i v-else class="el-icon-close text-danger" style="font-size: 16px;"></i>
-                <span :class="passwordRequirements.specialChar ? 'text-success' : 'text-danger'">包含特殊字符</span>
-              </div>
-            </div>
-          </div>
-        </el-form-item>
-        <el-form-item prop="confirmPassword">
-          <el-input :prefix-icon="Lock" size="large" v-model="form.confirmPassword" placeholder="请确认密码" show-password />
-        </el-form-item>
-        <el-form-item>
-          <el-button size="large" type="primary" style="width: 100%" @click="nextStep">下一步</el-button>
-        </el-form-item>
+  <main class="register-page">
+    <section class="register-card">
+      <router-link to="/login" class="register-brand" aria-label="返回湖叶影院登录页"><CinemaBrand /></router-link>
+      <h1>创建账户</h1>
+      <ol class="register-steps" aria-label="注册进度">
+        <li v-for="(label, index) in ['账号设置', '密保问题', '个人资料']" :key="label" :class="{ active: step === index + 1, completed: step > index + 1 }" :aria-current="step === index + 1 ? 'step' : undefined"><span>{{ index + 1 }}</span>{{ label }}</li>
+      </ol>
+      <el-form v-if="step === 1" ref="formRef" :model="form" :rules="step1Rules" label-position="top" @submit.prevent="nextStep">
+        <el-form-item label="账号" prop="username"><el-input v-model="form.username" :prefix-icon="User" size="large" placeholder="设置账号" autocomplete="username" /></el-form-item>
+        <el-form-item label="密码" prop="password" class="password-item"><el-input v-model="form.password" :prefix-icon="Lock" size="large" placeholder="设置密码" autocomplete="new-password" show-password aria-describedby="register-password-hint" /></el-form-item>
+        <p id="register-password-hint" class="password-hint"><span>至少 8 个字符，包含大写和小写字母</span><span>同时包含数字及特殊字符</span></p>
+        <el-form-item label="确认密码" prop="confirmPassword"><el-input v-model="form.confirmPassword" :prefix-icon="Lock" size="large" placeholder="再次输入密码" autocomplete="new-password" show-password /></el-form-item>
+        <el-button class="register-next" size="large" type="primary" native-type="submit">下一步</el-button>
       </el-form>
-
-      <!-- 第二步：输入密保问题及答案 -->
-      <el-form v-if="step === 2" :model="form" ref="formRef" :rules="step2Rules">
-        <el-form-item label="密保问题：" style="margin-bottom: 15px">
-          <div class="question-text">请设置一个密保问题，用于找回密码</div>
-        </el-form-item>
-        <el-form-item prop="securityQuestion">
-          <el-input :prefix-icon="HelpFilled" size="large" v-model="form.securityQuestion" placeholder="请输入您的密保问题" />
-        </el-form-item>
-        <el-form-item prop="securityAnswer">
-          <el-input :prefix-icon="Document" size="large" v-model="form.securityAnswer" placeholder="请输入密保问题的答案" />
-        </el-form-item>
-        <!-- 修改第2步的按钮容器 -->
-        <el-form-item>
-          <div class="button-group">
-            <el-button size="large" @click="prevStep">上一步</el-button>
-            <el-button size="large" type="primary" @click="nextStep">下一步</el-button>
-          </div>
-        </el-form-item>
+      <el-form v-if="step === 2" ref="formRef" :model="form" :rules="step2Rules" label-position="top" @submit.prevent="nextStep">
+        <el-form-item label="密保问题" prop="securityQuestion"><el-input v-model="form.securityQuestion" :prefix-icon="HelpFilled" size="large" placeholder="设置一个用于找回密码的问题" /></el-form-item>
+        <el-form-item label="密保答案" prop="securityAnswer"><el-input v-model="form.securityAnswer" :prefix-icon="Document" size="large" placeholder="输入答案" /></el-form-item>
+        <div class="register-actions"><el-button size="large" @click="prevStep">上一步</el-button><el-button size="large" type="primary" native-type="submit">下一步</el-button></div>
       </el-form>
-
-      <!-- 第三步：完善账号细节 -->
-      <el-form v-if="step === 3" :model="form" ref="formRef" :rules="step3Rules">
-        <div class="avatar-uploader">
-          <el-upload
-            v-model:file-list="fileList"
-            class="avatar-uploader"
-            :action="uploadUrl"
-            :show-file-list="false"
-            :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload"
-            :on-error="handleAvatarError"
-            accept=".jpg,.jpeg,.png,.gif"
-          >
-            <img v-if="form.avatar" :src="form.avatar" class="avatar" />
-            <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
-          </el-upload>
-          <div class="avatar-tip" style="text-align: center; font-size: 12px; color: #909399; margin-top: 5px;">
-            请上传头像，支持 JPG、JPEG、PNG、GIF 格式，最大2MB
-          </div>
-        </div>
-        
-        <el-form-item prop="name">
-          <el-input :prefix-icon="User" size="large" v-model="form.name" placeholder="请输入您的名称（选填）" />
-        </el-form-item>
-        
-        <el-form-item>
-          <div style="margin-bottom: 10px;">性别：</div>
-          <el-radio-group v-model="form.sex">
-            <el-radio :label="'男'">男</el-radio>
-            <el-radio :label="'女'">女</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        
-        <el-form-item prop="phone">
-          <el-input :prefix-icon="Phone" size="large" v-model="form.phone" placeholder="请输入您的手机号（选填）" />
-        </el-form-item>
-        
-        <el-form-item prop="email">
-          <el-input :prefix-icon="Message" size="large" v-model="form.email" placeholder="请输入您的邮箱（选填）" />
-        </el-form-item>
-        
-        <el-form-item>
-          <div class="button-group">
-            <el-button size="large" @click="prevStep">上一步</el-button>
-            <el-button size="large" type="primary" @click="register">完成</el-button>
-          </div>
-        </el-form-item>
+      <el-form v-if="step === 3" ref="formRef" :model="form" :rules="step3Rules" label-position="top" @submit.prevent="register">
+        <div class="register-avatar"><el-upload v-model:file-list="fileList" :action="uploadUrl" :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload" :on-error="handleAvatarError" accept=".jpg,.jpeg,.png,.gif" aria-label="上传头像"><img v-if="form.avatar" :src="form.avatar" alt="头像预览" /><el-icon v-else :size="24"><Plus /></el-icon></el-upload><p>头像选填 · JPG / PNG / GIF，最大 2MB</p></div>
+        <el-form-item label="昵称" prop="name"><el-input v-model="form.name" :prefix-icon="User" size="large" placeholder="选填" /></el-form-item>
+        <el-form-item label="性别"><el-radio-group v-model="form.sex"><el-radio label="男">男</el-radio><el-radio label="女">女</el-radio></el-radio-group></el-form-item>
+        <el-form-item label="手机号" prop="phone"><el-input v-model="form.phone" :prefix-icon="Phone" size="large" placeholder="选填" autocomplete="tel" /></el-form-item>
+        <el-form-item label="邮箱" prop="email"><el-input v-model="form.email" :prefix-icon="Message" size="large" placeholder="选填" autocomplete="email" /></el-form-item>
+        <div class="register-actions"><el-button size="large" @click="prevStep">上一步</el-button><el-button size="large" type="primary" native-type="submit">完成注册</el-button></div>
       </el-form>
-
-      <div style="text-align: center; margin-top: 20px;">
-        <a href="/login">返回登录</a>
-      </div>
-    </div>
-  </div>
+      <router-link to="/login" class="back-to-login">返回登录</router-link>
+    </section>
+  </main>
 </template>
 
 <script setup>
-  import { reactive, ref } from "vue";
+  import { reactive, ref, onMounted } from "vue";
   import { User, Lock, HelpFilled, Document, Phone, Message, Plus } from "@element-plus/icons-vue";
   import request from "@/utils/request";
   import { ElMessage } from "element-plus";
   import router from "@/router";
+  import CinemaBrand from "@/components/CinemaBrand.vue";
+  import defaultAvatar from "@/assets/imgs/defaultAvatar.png";
+  onMounted(() => { document.title = "注册 · 湖叶影院" });
 
   // 添加uploadUrl的定义，使用环境变量构建正确的上传路径
   const uploadUrl = import.meta.env.VITE_BASE_URL + '/files/upload';
@@ -172,15 +66,6 @@
     avatar: ''
   });
 
-  // 密码要求状态对象
-  const passwordRequirements = reactive({
-    length: false,
-    uppercase: false,
-    lowercase: false,
-    number: false,
-    specialChar: false
-  });
-
   // 第一步规则
   // 修改username验证规则，使其更加灵活
   const step1Rules = {
@@ -198,11 +83,10 @@
             });
             
             // 添加详细的调试日志
-            console.log('账号检查完整响应:', JSON.stringify(res));
-            console.log('响应状态码:', res.code);
-            console.log('响应数据:', res.data);
-            console.log('响应数据类型:', typeof res.data);
-            
+
+
+
+
             // 简化并强化判断逻辑
             // 假设后端遵循以下逻辑：
             // 1. 如果账号可用，返回code='200'，data=false或其他非真值
@@ -220,9 +104,7 @@
                               res.data?.exists === true || 
                               res.data?.available === false ||
                               (typeof res.data === 'object' && Object.keys(res.data).length > 0);
-                              
-              console.log('判断账号是否存在:', isExists);
-              
+
               if (isExists) {
                 callback(new Error('该账号已被注册，请使用其他账号'));
               } else {
@@ -312,26 +194,6 @@
         required: false
       }
     ]
-  };
-
-  // 检查密码要求
-  const checkPasswordRequirements = () => {
-    const password = form.password || ''
-    
-    // 检查密码长度
-    passwordRequirements.length = password.length >= 8
-    
-    // 检查是否包含大写字母
-    passwordRequirements.uppercase = /[A-Z]/.test(password)
-    
-    // 检查是否包含小写字母
-    passwordRequirements.lowercase = /[a-z]/.test(password)
-    
-    // 检查是否包含数字
-    passwordRequirements.number = /[0-9]/.test(password)
-    
-    // 检查是否包含特殊字符
-    passwordRequirements.specialChar = /[^A-Za-z0-9]/.test(password)
   };
 
   // 下一步
@@ -429,7 +291,7 @@
         // 如果用户没有上传头像，设置默认头像路径
         if (!form.avatar) {
           // 修改为前端资源路径
-          form.avatar = '/src/assets/imgs/defaultAvatar.png';
+          form.avatar = defaultAvatar;
         }
         
         // 调用后台的注册接口
@@ -448,115 +310,31 @@
     });
   };
 </script>
-
 <style scoped>
-.login-container {
-  height: 100vh;
-  overflow:hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-image: url("@/assets/imgs/fengmian.png");
-  background-size: cover;
-}
-.login-box {
-  width: 400px;
-  padding: 40px 30px;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0,.1);
-  background-color: rgba(255, 255, 255, .9);
-}
-.steps {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 30px;
-}
-.step {
-  flex: 1;
-  text-align: center;
-  padding: 8px 0;
-  color: #999;
-  font-size: 14px;
-}
-.step.active {
-  color: #1450aa;
-  font-weight: bold;
-}
-.step.completed {
-  color: #67c23a;
-}
-.question-text {
-  font-size: 14px; /* 改为更小的字体，与标题大小一致 */
-  color: #909399; /* 改为灰色 */
-  margin-bottom: 5px;
-  font-weight: normal; /* 移除加粗效果 */
-  white-space: nowrap; /* 确保文字在一行显示 */
-  overflow: hidden; /* 防止溢出 */
-  text-overflow: ellipsis; /* 超出部分显示省略号 */
-}
-.requirement-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 500;
-}
-.text-success {
-  color: #67c23a !important;
-}
-.text-danger {
-  color: #f56c6c !important;
-}
-
-/* 头像上传样式 - 调整为与Person.vue一致 */
-.avatar-uploader {
-  text-align: center;
-  margin-bottom: 20px;
-}
-.avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-/* 非scoped样式，用于更好地控制Element Plus组件样式 */
-</style>
-
-<style>
-.avatar-uploader .el-upload {
-  border: 1px dashed var(--el-border-color);
-  border-radius: 50%; /* 改为圆形 */
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: var(--el-transition-duration-fast);
-  margin: 0 auto;
-}
-
-.avatar-uploader .el-upload:hover {
-  border-color: var(--el-color-primary);
-}
-
-.el-icon.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 120px;
-  height: 120px;
-  line-height: 120px;
-  text-align: center;
-}
-
-/* 添加新的按钮组样式 */
-.button-group {
-  display: flex;
-  width: 100%;
-  gap: 10px;
-}
-
-.button-group .el-button {
-  flex: 1;
-  height: 44px;
-  font-size: 16px;
-}
+.register-page { min-height: 100vh; padding: 48px 20px; display: flex; align-items: center; justify-content: center; background: #edf2f6; }
+.register-card { width: 100%; max-width: 480px; padding: 36px 44px 28px; background: #fff; border: 1px solid #e2e8ed; border-radius: 14px; box-shadow: 0 8px 35px #304a6110; }
+.register-brand { display: flex; justify-content: center; margin-bottom: 28px; }
+.register-card h1 { margin: 0 0 25px; text-align: center; font-size: 25px; font-weight: 600; letter-spacing: -.7px; }
+.register-steps { display: flex; list-style: none; padding: 0 0 23px; margin: 0 0 25px; border-bottom: 1px solid var(--line); gap: 12px; justify-content: space-between; }
+.register-steps li { display: flex; align-items: center; gap: 6px; color: #8b959e; font-size: 11px; white-space: nowrap; }
+.register-steps li > span { width: 21px; height: 21px; display: grid; place-items: center; border-radius: 50%; background: #f1f4f6; font-size: 10px; }
+.register-steps .active { color: #4b6a82; font-weight: 600; }
+.register-steps .active > span { color: #fff; background: var(--accent); }
+.register-steps .completed > span { color: var(--accent); background: #e8eff4; }
+:deep(.el-form-item) { margin-bottom: 23px; }
+:deep(.el-form-item__label) { padding-bottom: 7px !important; font-size: 12px; color: #566470; }
+:deep(.el-input__wrapper) { min-height: 44px; border-radius: 7px; }
+:deep(.el-input__inner) { font-size: 13px; }
+:deep(.el-input__prefix) { color: #94a1ab; }
+.password-item { margin-bottom: 0; }
+.password-item :deep(.el-form-item__error) { position: static; padding-top: 7px; }
+.password-hint { display: grid; gap: 2px; margin: 8px 0 20px; color: #858d95; font-size: 11px; font-weight: 400; line-height: 1.7; }
+.register-next { width: 100%; }
+.register-actions { display: flex; gap: 12px; }.register-actions .el-button { flex: 1; margin: 0; }
+.back-to-login { display: block; padding-top: 23px; margin-top: 25px; border-top: 1px solid var(--line); text-align: center; font-size: 12px; color: #718496; }
+.register-avatar { text-align: center; margin-bottom: 20px; }
+.register-avatar :deep(.el-upload) { height: 72px; width: 72px; border: 1px dashed #c3d0da; border-radius: 50%; overflow: hidden; color: #8196a6; background: #f5f8fa; }
+.register-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.register-avatar p { font-size: 10px; color: #8b969e; margin-top: 9px; }
+@media (max-width: 520px) { .register-page { padding: 22px 14px; align-items: flex-start; }.register-card { padding: 28px 23px 24px; }.register-steps { gap: 6px; }.register-steps li { font-size: 10px; gap: 5px; } }
 </style>
