@@ -10,7 +10,7 @@ public interface GoodsStockMapper {
     @org.apache.ibatis.annotations.Select("select * from upcoming_movies where id = #{id} for update")
     GoodsStock selectForUpdate(Integer id);
 
-    @org.apache.ibatis.annotations.Update("update upcoming_movies set tickets = (select coalesce(sum(available_seats), 0) from screening where goods_id = #{id}) where id = #{id}")
+    @org.apache.ibatis.annotations.Update("update upcoming_movies set tickets = (select coalesce(sum(available_seats), 0) from screening where goods_id = #{id} and start_time > CURRENT_TIMESTAMP) where id = #{id}")
     int syncTickets(Integer id);
 
     // 插入

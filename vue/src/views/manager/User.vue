@@ -11,22 +11,22 @@
         <el-button type="primary" @click="handleAdd">新增</el-button>
       </div>
       <el-table :data="data.tableData" stripe>
-        <el-table-column label="用户名" prop="username"></el-table-column>
-        <el-table-column label="名称" prop="name"></el-table-column>
-        <el-table-column label="头像">
+        <el-table-column min-width="120" label="用户名" prop="username"></el-table-column>
+        <el-table-column min-width="120" label="名称" prop="name"></el-table-column>
+        <el-table-column min-width="120" label="头像">
           <template #default="scope">
             <el-image :src="scope.row.avatar" style="width: 40px; height: 40px; border-radius: 50%"></el-image>
           </template>
         </el-table-column>
-        <el-table-column label="角色" prop="role">
+        <el-table-column min-width="120" label="角色" prop="role">
           <template #default="scope">
             <span v-if="scope.row.role === 'USER'">普通用户</span>
           </template>
         </el-table-column>
 
-        <el-table-column label="性别" prop="sex"></el-table-column>
-          <el-table-column label="电话" prop="phone"></el-table-column>
-          <el-table-column label="邮箱" prop="email"></el-table-column>
+        <el-table-column min-width="120" label="性别" prop="sex"></el-table-column>
+          <el-table-column min-width="120" label="电话" prop="phone"></el-table-column>
+          <el-table-column min-width="120" label="邮箱" prop="email"></el-table-column>
         <el-table-column label="操作" align="center" width="160">
           <template #default="scope">
             <el-button type="primary" @click="handleEdit(scope.row)">编辑</el-button>

@@ -22,19 +22,19 @@
         <el-button type="primary" @click="handleAdd">新增</el-button>
       </div>
       <el-table :data="data.tableData" stripe>
-        <el-table-column label="电影名称" prop="name"></el-table-column>
-        <el-table-column label="电影类型" prop="categoryId">
+        <el-table-column min-width="120" label="电影名称" prop="name"></el-table-column>
+        <el-table-column min-width="120" label="电影类型" prop="categoryId">
           <template #default="scope">
             {{ data.categoryList.find(item => item.id === scope.row.categoryId)?.name || '未分类' }}
           </template>
         </el-table-column>
-        <el-table-column label="电影主演" prop="actors"></el-table-column>
-        <el-table-column label="电影评分" prop="score"></el-table-column>
-        <el-table-column label="电影票房" prop="boxOffice"></el-table-column>
-        <el-table-column label="电影上映时间" prop="showtime"></el-table-column>
-        <el-table-column label="电影地区" prop="area"></el-table-column>
-        <el-table-column label="电影长度（分钟）" prop="length"></el-table-column>
-        <!--        <el-table-column label="分类" prop="categoryName"></el-table-column>-->
+        <el-table-column min-width="120" label="电影主演" prop="actors"></el-table-column>
+        <el-table-column min-width="120" label="电影评分" prop="score"></el-table-column>
+        <el-table-column min-width="120" label="电影票房" prop="boxOffice"></el-table-column>
+        <el-table-column min-width="120" label="电影上映时间" prop="showtime"></el-table-column>
+        <el-table-column min-width="120" label="电影地区" prop="area"></el-table-column>
+        <el-table-column min-width="120" label="电影长度（分钟）" prop="length"></el-table-column>
+        <!--        <el-table-column min-width="120" label="分类" prop="categoryName"></el-table-column>-->
 
         <el-table-column label="操作" header-align="center" width="160">
           <template #default="scope">

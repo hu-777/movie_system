@@ -10,6 +10,8 @@ import java.util.List;
 public interface OrdersMapper {
     @Select("select * from orders where id = #{id} for update")
     Orders selectForUpdate(Integer id);
+    @Select("select count(*) from orders where screening_id = #{id}")
+    int countByScreeningId(Integer id);
     int insert(Orders orders);
 
     @Delete("delete from orders where id = #{id}")

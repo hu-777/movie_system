@@ -5,47 +5,47 @@
 
 <mapper namespace="com.example.mapper.OrdersMapper">
     <select id="selectAll" resultType="com.example.entity.Orders">
-        select orders.*, upcoming_movies.name as goodsName, user.name as userName from orders
-        left join upcoming_movies on orders.goods_id = upcoming_movies.id
-        left join user on orders.user_id = user.id
+        select o.*, m.name as goodsName, u.name as userName from orders o
+        left join upcoming_movies m on o.goods_id = m.id
+        left join user u on o.user_id = u.id
         <where>
             <if test="userRole != 'ADMIN'">
-                orders.user_id = #{userId}
+                o.user_id = #{userId}
             </if>
         </where>
-        order by orders.id desc
+        order by o.id desc
     </select>
 
     <!-- OrdersMapper.xml 新增selectAllOrders查询 -->
     <select id="selectAllOrders" resultType="com.example.entity.Orders">
-        select orders.*,
-               upcoming_movies.name as goodsName,
-               user.name as userName
-        from orders
-                 left join upcoming_movies on orders.goods_id = upcoming_movies.id
-                 left join user on orders.user_id = user.id
+        select o.*,
+               m.name as goodsName,
+               u.name as userName
+        from orders o
+                 left join upcoming_movies m on o.goods_id = m.id
+                 left join user u on o.user_id = u.id
     </select>
 
 
     <!-- 修改selectPage查询 -->
     <!-- 修改selectPage查询，添加按电影名称查询条件 -->
     <select id="selectPage" resultType="com.example.entity.Orders">
-        select orders.*, upcoming_movies.name as goodsName, user.name as userName from orders
-        left join upcoming_movies on orders.goods_id = upcoming_movies.id
-        left join user on orders.user_id = user.id
+        select o.*, m.name as goodsName, u.name as userName from orders o
+        left join upcoming_movies m on o.goods_id = m.id
+        left join user u on o.user_id = u.id
         <where>
             <if test="orders.orderNo != null">
-                orders.order_no like concat('%', #{orders.orderNo}, '%')
+                o.order_no like concat('%', #{orders.orderNo}, '%')
             </if>
             <!-- 添加按电影名称查询条件 -->
             <if test="orders.goodsName != null">
-                and upcoming_movies.name like concat('%', #{orders.goodsName}, '%')
+                and m.name like concat('%', #{orders.goodsName}, '%')
             </if>
             <if test="userRole != 'ADMIN'">
-                and orders.user_id = #{userId}
+                and o.user_id = #{userId}
             </if>
         </where>
-        order by orders.id desc
+        order by o.id desc
     </select>
 
     <!-- 修改insert语句 -->

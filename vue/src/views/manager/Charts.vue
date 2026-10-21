@@ -1,8 +1,9 @@
 <template>
   <div class="charts-grid">
-    <section v-for="(title,i) in titles" :key="title" class="surface chart-card" v-loading="loading[i]">
+    <section v-for="(title,i) in titles" :key="title" class="surface chart-card" :aria-busy="loading[i]">
       <header><h2>{{ title }}</h2><el-button v-if="errors[i]" text @click="loadChart(i)">重试</el-button></header>
-      <div v-if="errors[i]" class="chart-message">{{ errors[i] }}</div>
+      <div v-if="loading[i]" class="chart-message">加载中…</div>
+      <div v-else-if="errors[i]" class="chart-message">{{ errors[i] }}</div>
       <div v-else-if="empty[i]" class="chart-message">暂无统计数据</div>
       <div :ref="el => elements[i] = el" class="chart" :class="{hidden:errors[i] || empty[i]}" />
     </section>

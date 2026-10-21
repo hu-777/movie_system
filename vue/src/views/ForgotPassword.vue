@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <div class="login-box">
-      <div style="font-weight: bold; font-size: 24px; text-align: center; margin-bottom: 30px; color: #1450aa">找回密码</div>
+      <div style="font-weight: bold; font-size: 24px; text-align: center; margin-bottom: 30px; color: #56738b">找回密码</div>
       
       <!-- 步骤指示器 -->
       <div class="steps">
@@ -92,7 +92,7 @@
       </el-form>
 
       <div style="text-align: center; margin-top: 20px;">
-        <a href="/login">返回登录</a>
+        <router-link to="/login">返回登录</router-link>
       </div>
     </div>
   </div>
@@ -279,19 +279,19 @@
 
 <style scoped>
 .login-container {
-  height: 100vh;
-  overflow:hidden;
+  min-height: 100dvh;
+  padding: 32px 18px;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-image: url("@/assets/imgs/fengmian.png");
+  background: radial-gradient(ellipse at top left, #e5edf3, #f5f7f9 65%);
   background-size: cover;
 }
 .login-box {
-  width: 400px;
+  width: min(100%, 460px);
   padding: 40px 30px;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0,.1);
+  border-radius: 16px;
+  border: 1px solid #e5e9ed; box-shadow: 0 16px 50px rgba(35,55,75,.05);
   background-color: rgba(255, 255, 255, .9);
 }
 .steps {
@@ -307,7 +307,7 @@
   font-size: 14px;
 }
 .step.active {
-  color: #1450aa;
+  color: #56738b;
   font-weight: bold;
 }
 .step.completed {

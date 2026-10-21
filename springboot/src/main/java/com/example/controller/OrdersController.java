@@ -72,26 +72,11 @@ public class OrdersController {
     // 修改选座购买接口，移除seatIds参数
     // 修改addWithSeats方法
     @PostMapping("/addWithSeats")
-    public Result addWithSeats(@RequestBody Map<String, Object> params) {
-        Integer goodsId = (Integer) params.get("goodsId");
-        Integer screeningId = (Integer) params.get("screeningId");
-        Integer userId = (Integer) params.get("userId");
-        String seatInfo = (String) params.get("seatInfo");
-
-    // 打印调试信息
-        System.out.println("接收订单参数: goodsId=" + goodsId + ", screeningId=" + screeningId +
-                ", userId=" + userId + ", seatInfo=" + seatInfo);
-
-        // ✅ 修正：不要在 Controller 里瞎猜 ID！传 null 进去。
-        // OrdersService 里的逻辑检测到 list 为空时，会自动根据 seatInfo 去数据库查真正的 ID。
-        List<Integer> seatIds = null;
-
-        // 调用service层方法
-        boolean success = ordersService.addOrderWithSeats(goodsId, screeningId, userId, seatIds, seatInfo);
-
-        return success ? Result.success() : Result.error("订单创建失败");
+    public Result addWithSeats(@RequestBody Orders request) {
+        ordersService.addOrderWithSeats(request.getGoodsId(), request.getScreeningId(),
+                request.getUserId(), null, request.getSeatInfo());
+        return Result.success();
     }
-    
     // 修改批量导出发票接口，确保返回完整的订单信息
     @PostMapping("/exportBatchInvoices")
     public Result exportBatchInvoices(@RequestBody Map<String, Object> params) {

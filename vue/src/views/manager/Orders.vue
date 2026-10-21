@@ -12,16 +12,16 @@
           stripe
           style="width: 100%"
       >
-        <el-table-column v-if="data.user.role === 'ADMIN'" label="订单编号" prop="orderNo"></el-table-column>
-        <el-table-column label="电影名称" prop="goodsName"></el-table-column>
-        <el-table-column label="购买数量" prop="num"></el-table-column>
-        <el-table-column label="订单金额" prop="totalPrice">
+        <el-table-column min-width="120" v-if="data.user.role === 'ADMIN'" label="订单编号" prop="orderNo"></el-table-column>
+        <el-table-column min-width="120" label="电影名称" prop="goodsName"></el-table-column>
+        <el-table-column min-width="120" label="购买数量" prop="num"></el-table-column>
+        <el-table-column min-width="120" label="订单金额" prop="totalPrice">
           <template #default="scope">
             ￥{{ scope.row.totalPrice }}
           </template>
         </el-table-column>
 
-        <el-table-column label="订单状态" prop="status">
+        <el-table-column min-width="120" label="订单状态" prop="status">
           <template #default="scope">
             <el-tag v-if="scope.row.status==='已取消'" type="danger">已取消</el-tag>
             <el-tag v-if="scope.row.status==='待支付'" type="warning">待支付</el-tag>
@@ -50,7 +50,7 @@
             <el-button v-if="data.user.role==='USER' && scope.row.status === '待退票'" type="info" @click="changeStatus(scope.row, 'CANCEL_REFUND')" style="margin-left: 5px;">取消退票</el-button>
             <el-button v-if="scope.row.status === '待退票' && data.user.role === 'ADMIN'" type="danger" @click="changeStatus(scope.row, '已退票')" style="margin-left: 5px;">确认退票</el-button>
             <el-button v-if="data.user.role==='ADMIN' && scope.row.status==='已完成'" type="info" @click="exportInvoice(scope.row)" style="margin-left: 5px;">导出</el-button>
-            <el-button v-if="data.user.role === 'ADMIN'" type="danger" @click="handleDelete(scope.row.id)" style="margin-left: 5px;">删除</el-button>
+            <el-button v-if="data.user.role === 'ADMIN' && ['已取消', '已退票'].includes(scope.row.status)" type="danger" @click="handleDelete(scope.row.id)" style="margin-left: 5px;">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -145,6 +145,7 @@ const load = () => {
   }).then(res => {
     console.log('订单查询响应:', res);
     loading.value = false;
+    if (res.code !== '200') { ElMessage.error(res.msg || '订单加载失败'); return; }
     let list = res.data?.list || [];
     console.log('订单列表数量:', list.length);
     // 排序：将待退票状态的订单置顶

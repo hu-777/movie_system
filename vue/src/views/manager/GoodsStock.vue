@@ -4,18 +4,18 @@
         <el-button type="primary" @click="handleAdd">新增</el-button>
       </div>
       <el-table :data="data.tableData" stripe>
-        <el-table-column label="电影名称" prop="name"></el-table-column>
-        <el-table-column label="上映时间">
+        <el-table-column min-width="120" label="电影名称" prop="name"></el-table-column>
+        <el-table-column min-width="120" label="上映时间">
           <template #default="scope">
             <span>{{ formatTime(scope.row.showtime) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="放映位置" prop="position"></el-table-column>
-        <el-table-column label="推荐理由" prop="comment"></el-table-column>
-        <el-table-column label="上票数量" prop="tickets"></el-table-column>
-        <el-table-column label="类型" prop="type"></el-table-column>
-        <el-table-column label="票价" prop="price"></el-table-column>
-        <el-table-column label="海报" prop="img">
+        <el-table-column min-width="120" label="放映位置" prop="position"></el-table-column>
+        <el-table-column min-width="120" label="推荐理由" prop="comment"></el-table-column>
+        <el-table-column min-width="120" label="上票数量" prop="tickets"></el-table-column>
+        <el-table-column min-width="120" label="类型" prop="type"></el-table-column>
+        <el-table-column min-width="120" label="票价" prop="price"></el-table-column>
+        <el-table-column min-width="120" label="海报" prop="img">
           <template #default="scope">
             <el-image style= "width: 50px; height: 50px; border-radius: 5px" :src="scope.row.img"
                       :preview-src-list="[scope.row.img]" preview-teleported="true"></el-image>
@@ -33,7 +33,7 @@
     </div>
 
     <div class="card" v-if="data.total">
-      <el-pagination background layout="prev, pager, next" v-model:page-size="data.pageSize" v-model:current-page="data.pageNum" :total="data.total"/>
+      <el-pagination background layout="prev, pager, next" v-model:page-size="data.pageSize" v-model:current-page="data.pageNum" :total="data.total" @current-change="load"/>
     </div>
 
     <el-dialog title="影片信息" width="600px" v-model="data.formVisible" :close-on-click-modal="false" destroy-on-close>
@@ -91,8 +91,8 @@
       </template>
     </el-dialog>
 
-    <el-dialog title="安排排片" v-model="screeningVisible" width="35%" :close-on-click-modal="false">
-      <el-form :model="screeningForm" label-width="100px" style="padding-right: 20px">
+    <el-dialog title="安排排片" v-model="screeningVisible" width="600px" :close-on-click-modal="false">
+      <el-form :model="screeningForm" label-position="top" class="management-form">
         <el-form-item label="电影名称">
           <el-input v-model="screeningForm.goodsName" disabled></el-input>
         </el-form-item>
@@ -104,7 +104,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="语言版本">
-          <el-select v-model="screeningForm.language" placeholder="请选择语言" style="width: 100%">
+          <el-select v-model="screeningForm.screenType" placeholder="请选择语言" style="width: 100%">
             <el-option label="国语2D" value="国语2D"></el-option>
             <el-option label="国语3D" value="国语3D"></el-option>
             <el-option label="原版2D" value="原版2D"></el-option>
@@ -118,7 +118,7 @@
           <el-date-picker v-model="screeningForm.endTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" placeholder="选择结束时间" style="width: 100%"></el-date-picker>
         </el-form-item>
         <el-form-item label="票价">
-          <el-input-number v-model="screeningForm.price" :min="0" :precision="2"></el-input-number>
+          <el-input-number v-model="screeningForm.price" :min="0" :precision="0"></el-input-number>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -178,22 +178,22 @@ const handleAdd = () => {
 
 // 编辑
 const handleEdit = (row) => {
+    data.form = JSON.parse(JSON.stringify(row))
     // 修复字段名调用
     if (row.position) {
-        const match = row.position.match(/(\d+)号(.+)厅/);
+        const match = row.position.match(/(\d+)号(.+厅)/);
         if (match) {
             data.form.hallNumber = match[1];
             data.form.hallType = match[2];
         }
     }
-    data.form = JSON.parse(JSON.stringify(row))
     data.formVisible = true
 }
 // 新增保存
 const add = () => {
     // 组合厅号和厅类型为position字段
     if (data.form.hallNumber && data.form.hallType) {
-        data.form.position = `${data.form.hallNumber}号${data.form.hallType}厅`;
+        data.form.position = `${data.form.hallNumber}号${data.form.hallType}`;
     }
     request.post('/goodsStock/add', data.form).then(res => {
         if (res.code === '200') {
@@ -210,7 +210,7 @@ const add = () => {
 const update = () => {
   // 组合厅号和厅类型为position字段
   if (data.form.hallNumber && data.form.hallType) {
-    data.form.position = `${data.form.hallNumber}号${data.form.hallType}厅`;
+    data.form.position = `${data.form.hallNumber}号${data.form.hallType}`;
   }
   // 确保不传递tickets字段
   const { tickets, ...rest } = data.form;
@@ -287,7 +287,7 @@ const handleScreening = (row) => {
 // === 新增：保存场次 ===
 const saveScreening = () => {
   // 简单的非空校验
-  if (!screeningForm.hallName || !screeningForm.startTime || !screeningForm.price) {
+  if (!screeningForm.hallName || !screeningForm.startTime || screeningForm.price == null) {
     ElMessage.warning('请填写完整场次信息')
     return
   }

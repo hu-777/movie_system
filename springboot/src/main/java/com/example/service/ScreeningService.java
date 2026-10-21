@@ -5,6 +5,9 @@ import com.example.entity.Screening;
 import com.example.entity.Seat;
 import com.example.mapper.ScreeningMapper;
 import com.example.mapper.SeatMapper;
+import com.example.mapper.GoodsStockMapper;
+import com.example.mapper.OrdersMapper;
+import com.example.exception.CustomException;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,17 @@ import java.util.List;
  */
 @Service
 public class ScreeningService {
+    @Resource private GoodsStockMapper goodsStockMapper;
+    @Resource private OrdersMapper ordersMapper;
+
+    private void validate(Screening screening) {
+        if (screening.getGoodsId() == null || screening.getStartTime() == null ||
+            screening.getHallName() == null || screening.getHallName().trim().isEmpty() ||
+            screening.getPrice() == null || screening.getPrice() < 0)
+            throw new CustomException("请填写完整的场次信息");
+        if (screening.getEndTime() != null && !screening.getEndTime().after(screening.getStartTime()))
+            throw new CustomException("结束时间必须晚于开始时间");
+    }
 
     @Resource
     private ScreeningMapper screeningMapper;
@@ -34,6 +48,9 @@ public class ScreeningService {
      */
     @Transactional
     public void add(Screening screening) {
+        validate(screening);
+        if (goodsStockMapper.selectForUpdate(screening.getGoodsId()) == null)
+            throw new CustomException("电影不存在");
         // 1. 定义影厅规格 (默认 6排 * 8列 = 48座)
         int rows = 12;
         int cols = 12;
@@ -66,20 +83,23 @@ public class ScreeningService {
                 seatMapper.insert(seat);
             }
         }
-        // ===【新增代码】同步更新电影总库存 ===
-        // 这一步是为了让 Home.vue 和 Buy.vue 的卡片上能显示出余票增加
-        GoodsStock goods = goodsStockService.selectById(screening.getGoodsId());
-        if (goods != null) {
-            int currentTickets = goods.getTickets() == null ? 0 : goods.getTickets();
-            goods.setTickets(currentTickets + totalSeats);
-            goodsStockService.updateById(goods);
-        }
+        goodsStockMapper.syncTickets(screening.getGoodsId());
     }
 
     /**
      * 修改场次
      */
+    @Transactional
     public void updateById(Screening screening) {
+        validate(screening);
+        goodsStockMapper.selectForUpdate(screening.getGoodsId());
+        Screening existing = screeningMapper.selectForUpdate(screening.getId());
+        if (existing == null) throw new CustomException("场次不存在");
+        if (!existing.getGoodsId().equals(screening.getGoodsId())) throw new CustomException("不能更换场次所属电影");
+        if (ordersMapper.countByScreeningId(screening.getId()) > 0)
+            throw new CustomException("场次已有订单，不能直接修改排片");
+        screening.setTotalSeats(existing.getTotalSeats());
+        screening.setAvailableSeats(existing.getAvailableSeats());
         screeningMapper.updateById(screening);
     }
 
@@ -88,9 +108,16 @@ public class ScreeningService {
      */
     @Transactional
     public void deleteById(Integer id) {
+        Screening existing = screeningMapper.selectById(id);
+        if (existing == null) throw new CustomException("场次不存在");
+        goodsStockMapper.selectForUpdate(existing.getGoodsId());
+        screeningMapper.selectForUpdate(id);
+        if (ordersMapper.countByScreeningId(id) > 0) throw new CustomException("场次已有订单，不能删除");
+        seatMapper.deleteByScreeningId(id);
         // 这里建议先删座位，再删场次，防止脏数据
         // seatMapper.deleteByScreeningId(id); (如果你有这个接口的话)
         screeningMapper.deleteById(id);
+        goodsStockMapper.syncTickets(existing.getGoodsId());
     }
 
     /**

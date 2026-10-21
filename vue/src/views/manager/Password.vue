@@ -12,37 +12,7 @@
             @input="checkPasswordRequirements"
             placeholder="请输入新密码"
           />
-          <!-- 密码强度指示器 -->
-          <div style="margin-top: 10px;">
-            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">为确保账户安全，密码要求：</div>
-            <div style="display: flex; flex-direction: column; gap: 3px;">
-              <div class="requirement-item">
-                <i v-if="data.passwordRequirements.length" class="el-icon-check text-success" style="font-size: 16px;"></i>
-                <i v-else class="el-icon-close text-danger" style="font-size: 16px;"></i>
-                <span :class="data.passwordRequirements.length ? 'text-success' : 'text-danger'">至少8个字符</span>
-              </div>
-              <div class="requirement-item">
-                <i v-if="data.passwordRequirements.uppercase" class="el-icon-check text-success" style="font-size: 16px;"></i>
-                <i v-else class="el-icon-close text-danger" style="font-size: 16px;"></i>
-                <span :class="data.passwordRequirements.uppercase ? 'text-success' : 'text-danger'">包含大写字母</span>
-              </div>
-              <div class="requirement-item">
-                <i v-if="data.passwordRequirements.lowercase" class="el-icon-check text-success" style="font-size: 16px;"></i>
-                <i v-else class="el-icon-close text-danger" style="font-size: 16px;"></i>
-                <span :class="data.passwordRequirements.lowercase ? 'text-success' : 'text-danger'">包含小写字母</span>
-              </div>
-              <div class="requirement-item">
-                <i v-if="data.passwordRequirements.number" class="el-icon-check text-success" style="font-size: 16px;"></i>
-                <i v-else class="el-icon-close text-danger" style="font-size: 16px;"></i>
-                <span :class="data.passwordRequirements.number ? 'text-success' : 'text-danger'">包含数字</span>
-              </div>
-              <div class="requirement-item">
-                <i v-if="data.passwordRequirements.specialChar" class="el-icon-check text-success" style="font-size: 16px;"></i>
-                <i v-else class="el-icon-close text-danger" style="font-size: 16px;"></i>
-                <span :class="data.passwordRequirements.specialChar ? 'text-success' : 'text-danger'">包含特殊字符</span>
-              </div>
-            </div>
-          </div>
+          <p class="form-hint">至少8位，含大小写字母、数字及特殊字符</p>
         </el-form-item>
         <el-form-item label="确认新密码" prop="confirmPasword">
           <el-input v-model="data.user.confirmPasword" show-password placeholder="请确认新密码" />

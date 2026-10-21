@@ -38,8 +38,8 @@
     
     <!-- 修改后 -->
     <insert id="insert" parameterType="com.example.entity.Screening" useGeneratedKeys="true" keyProperty="id">
-        insert into screening (goods_id, goods_name, hall_name, screen_type, start_time, price, available_seats)
-        values (#{goodsId}, #{goodsName}, #{hallName}, #{screenType}, #{startTime}, #{price}, #{availableSeats})
+        insert into screening (goods_id, goods_name, hall_name, screen_type, start_time, end_time, price, total_seats, available_seats)
+        values (#{goodsId}, #{goodsName}, #{hallName}, #{screenType}, #{startTime}, #{endTime}, #{price}, #{totalSeats}, #{availableSeats})
     </insert>
     
     <!-- 添加查询最近场次的SQL -->

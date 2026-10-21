@@ -55,7 +55,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 /* Shared subpage rhythm and responsive forms. */
 .management-page{min-width:0;display:grid;gap:16px}
-.management-page>.card{margin:0!important;padding:22px;border:1px solid var(--line);box-shadow:none;border-radius:12px}
+.management-page>.card{min-width:0;width:100%;max-width:100%;margin:0!important;padding:22px;border:1px solid var(--line);box-shadow:none;border-radius:12px}
 .management-page>.card:hover,.account-card:hover{box-shadow:none}
 .page-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
 .page-toolbar>.el-input{width:260px!important;max-width:100%;margin:0!important}
@@ -77,3 +77,5 @@ button, a { -webkit-tap-highlight-color: transparent; }
  .management-page .el-pagination__jump{display:none}
  .page-toolbar>.el-input{flex:1 1 180px}
 }
+.form-hint{font-size:11px;line-height:1.7;color:#858d95;margin:8px 0 0;font-weight:400}
+.management-form .block{width:100%}

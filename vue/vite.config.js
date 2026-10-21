@@ -5,5 +5,5 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   plugins: [vue()],
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
-  optimizeDeps: { include: ['element-plus', '@element-plus/icons-vue', 'dayjs'] }
+  optimizeDeps: { include: ['element-plus', '@element-plus/icons-vue', 'dayjs', 'html2canvas', 'echarts/core', 'echarts/charts', 'echarts/components', 'echarts/renderers'] }
 })

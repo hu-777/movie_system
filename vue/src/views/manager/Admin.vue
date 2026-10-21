@@ -11,14 +11,14 @@
         <el-button type="primary" @click="handleAdd">新增</el-button>
       </div>
       <el-table :data="data.tableData" stripe>
-        <el-table-column label="用户名" prop="username"></el-table-column>
-        <el-table-column label="名称" prop="name"></el-table-column>
-        <el-table-column label="头像">
+        <el-table-column min-width="120" label="用户名" prop="username"></el-table-column>
+        <el-table-column min-width="120" label="名称" prop="name"></el-table-column>
+        <el-table-column min-width="120" label="头像">
           <template #default="scope">
             <el-image :src="scope.row.avatar" style="width: 40px; height: 40px; border-radius: 50%"></el-image>
           </template>
         </el-table-column>
-        <el-table-column label="角色" prop="role">
+        <el-table-column min-width="120" label="角色" prop="role">
           <template #default="scope">
             <span v-if="scope.row.role === 'ADMIN'">管理员</span>
           </template>

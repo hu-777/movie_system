@@ -11,9 +11,9 @@
         <el-button type="primary" @click="handleAdd">新增</el-button>
       </div>
       <el-table :data="data.tableData" stripe>
-        <el-table-column label="标题" prop="title"></el-table-column>
-        <el-table-column label="内容" prop="content"></el-table-column>
-        <el-table-column label="发布时间" prop="time"></el-table-column>
+        <el-table-column min-width="120" label="标题" prop="title"></el-table-column>
+        <el-table-column min-width="120" label="内容" prop="content"></el-table-column>
+        <el-table-column min-width="120" label="发布时间" prop="time"></el-table-column>
         <el-table-column label="操作" header-align="center" width="160">
           <template #default="scope">
             <el-button type="primary" @click="handleEdit(scope.row)">编辑</el-button>
