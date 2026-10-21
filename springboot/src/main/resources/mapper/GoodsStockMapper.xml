@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.mapper.GoodsStockMapper">
+
+    <!-- 查询所有 -->
+    <select id="selectAll" resultMap="GoodsStockResultMap">
+        SELECT upcoming_movies.* FROM upcoming_movies
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="categoryId != null"> and type = #{type}</if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectAllUpcoming" resultType="com.example.entity.GoodsStock">
+        SELECT * FROM  upcoming_movies
+    </select>
+
+    <!-- 插入 -->
+    <insert id="insert" parameterType="com.example.entity.GoodsStock" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO upcoming_movies (name, comment, showtime, tickets, goods_id, img, price, type, position)
+        VALUES (#{name}, #{comment}, #{showtime}, #{tickets}, #{goodsId}, #{img}, #{price}, #{type}, #{position})
+    </insert>
+
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.example.entity.GoodsStock">
+        UPDATE upcoming_movies
+        SET
+            name = #{name},
+            comment = #{comment},
+            showtime = #{showtime},
+            tickets = #{tickets},
+            goods_id = #{goodsId},
+            img = #{img},
+            price = #{price},
+            type = #{type},
+            position = #{position}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM upcoming_movies WHERE id = #{id}
+    </delete>
+
+    <!-- 根据ID查询 -->
+    <select id="selectById" resultType="com.example.entity.GoodsStock" parameterType="int">
+        SELECT * FROM upcoming_movies WHERE id = #{id}
+    </select>
+
+    <!-- ResultMap 映射 -->
+    <resultMap id="GoodsStockResultMap" type="com.example.entity.GoodsStock">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="comment" property="comment"/>
+        <result column="showtime" property="showtime"/>
+        <result column="tickets" property="tickets"/>
+        <result column="goods_id" property="goodsId"/>
+        <result column="img" property="img"/>
+        <result column="price" property="price"/>
+        <result column="type" property="type"/>
+        <result column="position" property="position"/>
+    </resultMap>
+
+</mapper>

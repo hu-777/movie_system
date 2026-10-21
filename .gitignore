@@ -1,0 +1,44 @@
+# Dependencies and generated output
+node_modules/
+target/
+dist/
+out/
+absolute/
+*.class
+*.jar
+*.log
+
+# Local IDE / assistant state
+.idea/
+.vscode/
+.codeartsdoer/
+.codex/
+.agents/
+*.iml
+
+# Databases, backups and private uploads
+data/
+*.db
+*.db.*
+*.backup
+*.bak
+files/*
+!files/.gitkeep
+!files/天气之子.jpg
+!files/我想吃掉你的胰脏.jpg
+!files/蜘蛛侠：平行宇宙.jpg
+springboot/files/
+
+# Local credentials (committed env files contain public API URLs only)
+.env
+.env.local
+.env.*.local
+application-local.yml
+application-local.yaml
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+.DS_Store
+Thumbs.db

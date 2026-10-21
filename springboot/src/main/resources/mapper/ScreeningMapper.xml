@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.ScreeningMapper">
+    
+    <select id="selectByGoodsId" resultType="com.example.entity.Screening">
+        select * from screening where goods_id = #{goodsId}
+    </select>
+    
+    <select id="selectById" resultType="com.example.entity.Screening">
+        <!-- 查询场次信息 -->
+        select * from screening where id = #{id}
+    </select>
+
+    <select id="selectAll" resultType="com.example.entity.Screening">
+        select * from screening
+        <where>
+            <if test="goodsName != null and goodsName != ''">
+                and goods_name like concat('%', #{goodsName}, '%')
+            </if>
+            <if test="hallName != null and hallName != ''">
+                and hall_name like concat('%', #{hallName}, '%')
+            </if>
+            <if test="goodsId != null">
+                and goods_id = #{goodsId}
+            </if>
+        </where>
+        order by start_time desc
+    </select>
+    
+    <update id="updateAvailableSeats">
+        update screening set available_seats = #{availableSeats} where id = #{id}
+    </update>
+    
+    <!-- 添加获取最大厅号的SQL -->
+    <select id="getMaxHallNumber" resultType="java.lang.Integer">
+        select max(cast(substring(hall_name, 1, length(hall_name) - 2) as unsigned)) from screening
+    </select>
+    
+    <!-- 修改后 -->
+    <insert id="insert" parameterType="com.example.entity.Screening" useGeneratedKeys="true" keyProperty="id">
+        insert into screening (goods_id, goods_name, hall_name, screen_type, start_time, price, available_seats)
+        values (#{goodsId}, #{goodsName}, #{hallName}, #{screenType}, #{startTime}, #{price}, #{availableSeats})
+    </insert>
+    
+    <!-- 添加查询最近场次的SQL -->
+    <select id="getNearestScreeningByGoodsId" resultType="com.example.entity.Screening">
+        select * from screening 
+        where goods_id = #{goodsId} and start_time > now()
+        order by start_time asc
+        limit 1
+    </select>
+    
+    <!-- 添加删除指定电影所有场次的SQL -->
+    <delete id="deleteByGoodsId">
+        delete from screening where goods_id = #{goodsId}
+    </delete>
+
+    <update id="updateById" parameterType="com.example.entity.Screening">
+        update screening
+        set goods_id = #{goodsId},
+            goods_name = #{goodsName},
+            hall_name = #{hallName},
+            start_time = #{startTime},
+            end_time = #{endTime},
+            price = #{price},
+            total_seats = #{totalSeats},
+            available_seats = #{availableSeats},
+            screen_type = #{screenType}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        delete from screening where id = #{id}
+    </delete>
+</mapper>

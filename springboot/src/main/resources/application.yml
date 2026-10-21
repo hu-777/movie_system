@@ -1,0 +1,44 @@
+server:
+  port: 9090
+
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    url: jdbc:h2:file:./data/movie_system;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;NON_KEYWORDS=USER;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+  sql:
+    init:
+      mode: always
+      encoding: UTF-8
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  main:
+    allow-circular-references: true
+
+# 配置mybatis实体和xml映射
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+
+
+pagehelper:
+  helper-dialect: mysql   # 指定数据库类型为 MySQL
+  reasonable: true        # 如果页码小于 1，自动调整为第一页
+  support-methods-arguments: true  # 支持接口直接传递分页参数
+  params: count=countSql  # 自动生成 count 查询语句
+
+# 文件上传的前缀url
+fileBaseUrl: http://localhost:9090
+
+# 文件目录：项目从 springboot 目录启动时，指向仓库根目录的 files 目录
+file:
+  storage-path: ${FILE_STORAGE_PATH:../files/}

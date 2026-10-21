@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.mapper.OrdersMapper">
+    <select id="selectAll" resultType="com.example.entity.Orders">
+        select orders.*, upcoming_movies.name as goodsName, user.name as userName from orders
+        left join upcoming_movies on orders.goods_id = upcoming_movies.id
+        left join user on orders.user_id = user.id
+        <where>
+            <if test="userRole != 'ADMIN'">
+                orders.user_id = #{userId}
+            </if>
+        </where>
+        order by orders.id desc
+    </select>
+
+    <!-- OrdersMapper.xml 新增selectAllOrders查询 -->
+    <select id="selectAllOrders" resultType="com.example.entity.Orders">
+        select orders.*,
+               upcoming_movies.name as goodsName,
+               user.name as userName
+        from orders
+                 left join upcoming_movies on orders.goods_id = upcoming_movies.id
+                 left join user on orders.user_id = user.id
+    </select>
+
+
+    <!-- 修改selectPage查询 -->
+    <!-- 修改selectPage查询，添加按电影名称查询条件 -->
+    <select id="selectPage" resultType="com.example.entity.Orders">
+        select orders.*, upcoming_movies.name as goodsName, user.name as userName from orders
+        left join upcoming_movies on orders.goods_id = upcoming_movies.id
+        left join user on orders.user_id = user.id
+        <where>
+            <if test="orders.orderNo != null">
+                orders.order_no like concat('%', #{orders.orderNo}, '%')
+            </if>
+            <!-- 添加按电影名称查询条件 -->
+            <if test="orders.goodsName != null">
+                and upcoming_movies.name like concat('%', #{orders.goodsName}, '%')
+            </if>
+            <if test="userRole != 'ADMIN'">
+                and orders.user_id = #{userId}
+            </if>
+        </where>
+        order by orders.id desc
+    </select>
+
+    <!-- 修改insert语句 -->
+    <insert id="insert" parameterType="com.example.entity.Orders" useGeneratedKeys="true" keyProperty="id">
+        insert into orders(order_no, goods_id, num, user_id, status, time, total_price, screening_id, seat_info, hall_name, show_time)
+        values (#{orderNo}, #{goodsId}, #{num}, #{userId}, #{status}, #{time}, #{totalPrice}, #{screeningId}, #{seatInfo}, #{hallName}, #{showTime})
+    </insert>
+    
+    <!-- 修改update语句 -->
+    <update id="updateById" parameterType="com.example.entity.Orders">
+        update orders set order_no=#{orderNo}, goods_id=#{goodsId}, num=#{num}, user_id=#{userId}, 
+        status=#{status}, time=#{time}, total_price=#{totalPrice}, screening_id=#{screeningId}, 
+        seat_info=#{seatInfo}, hall_name=#{hallName}, show_time=#{showTime}
+        where id = #{id}
+    </update>
+</mapper>
