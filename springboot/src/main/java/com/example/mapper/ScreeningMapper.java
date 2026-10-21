@@ -4,6 +4,8 @@ import com.example.entity.Screening;
 import java.util.List;
 
 public interface ScreeningMapper {
+    @org.apache.ibatis.annotations.Select("select * from screening where id = #{id} for update")
+    Screening selectForUpdate(Integer id);
     
     List<Screening> selectByGoodsId(Integer goodsId);
     

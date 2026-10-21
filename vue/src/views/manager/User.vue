@@ -1,7 +1,6 @@
-<template>
-  <div>
+<template><div class="management-page">
 
-    <div class="card" style="margin-bottom: 5px;">
+    <div class="card page-toolbar">
       <el-input v-model="data.name" style="width: 300px; margin-right: 10px" placeholder="请输入名称查询"></el-input>
       <el-button type="primary" @click="load">查询</el-button>
       <el-button type="info" style="margin: 0 10px" @click="reset">重置</el-button>
@@ -45,8 +44,8 @@
     </div>
 
 
-    <el-dialog title ="信息" width="40%" v-model="data.formVisible" :close-on-click-modal="false" destroy-on-close>
-      <el-form :model="data.form" label-width="100px" style="padding-right: 50px">
+    <el-dialog title ="信息" width="600px" v-model="data.formVisible" :close-on-click-modal="false" destroy-on-close>
+      <el-form :model="data.form" label-position="top" class="management-form">
         <el-form-item label="头像" prop="avatar">
           <el-upload 
             :action="uploadUrl" 

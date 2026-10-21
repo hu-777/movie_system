@@ -53,3 +53,27 @@ button, a { -webkit-tap-highlight-color: transparent; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+/* Shared subpage rhythm and responsive forms. */
+.management-page{min-width:0;display:grid;gap:16px}
+.management-page>.card{margin:0!important;padding:22px;border:1px solid var(--line);box-shadow:none;border-radius:12px}
+.management-page>.card:hover,.account-card:hover{box-shadow:none}
+.page-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.page-toolbar>.el-input{width:260px!important;max-width:100%;margin:0!important}
+.page-toolbar>.el-button{margin:0!important}
+.management-form .el-select,.management-form .el-date-editor{width:100%!important}
+.management-form .el-form-item{margin-bottom:22px}
+.management-page .el-pagination{flex-wrap:wrap;gap:6px}
+.management-page .el-table .cell{overflow-wrap:anywhere}
+.management-page .el-table .el-button{min-height:30px;padding:7px 10px;margin:3px!important}
+.account-page{width:100%;max-width:760px;margin:0 auto;min-width:0}
+.account-card{padding:32px;border:1px solid var(--line);box-shadow:none;border-radius:14px}
+.account-form{width:100%;max-width:520px;margin:auto}
+.account-form .el-form-item{margin-bottom:24px}
+.account-form .avatar{object-fit:cover;border-radius:50%;aspect-ratio:1}
+.account-form .avatar-uploader .el-upload{border-radius:50%}
+@media(max-width:760px){
+ .account-card{padding:24px 18px}.management-page>.card{padding:16px}
+ .management-page .el-dialog{width:calc(100vw - 32px)!important}
+ .management-page .el-pagination__jump{display:none}
+ .page-toolbar>.el-input{flex:1 1 180px}
+}

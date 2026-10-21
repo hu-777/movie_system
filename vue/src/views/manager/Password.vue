@@ -1,7 +1,7 @@
 <template>
-  <div style="width: 50%">
-    <div class="card" style="padding: 30px">
-      <el-form :model="data.user" label-width="100px" style="padding-right: 50px" :rules="data.rules" ref="formRef">
+  <div class="account-page">
+    <div class="card account-card">
+      <el-form :model="data.user" label-position="top" class="account-form" :rules="data.rules" ref="formRef">
         <el-form-item label="原密码" prop="password">
           <el-input v-model="data.user.password" show-password placeholder="请输入原密码" />
         </el-form-item>

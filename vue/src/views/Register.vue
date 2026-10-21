@@ -9,7 +9,7 @@
       <el-form v-if="step === 1" ref="formRef" :model="form" :rules="step1Rules" label-position="top" @submit.prevent="nextStep">
         <el-form-item label="账号" prop="username"><el-input v-model="form.username" :prefix-icon="User" size="large" placeholder="设置账号" autocomplete="username" /></el-form-item>
         <el-form-item label="密码" prop="password" class="password-item"><el-input v-model="form.password" :prefix-icon="Lock" size="large" placeholder="设置密码" autocomplete="new-password" show-password aria-describedby="register-password-hint" /></el-form-item>
-        <p id="register-password-hint" class="password-hint"><span>至少 8 个字符，包含大写和小写字母</span><span>同时包含数字及特殊字符</span></p>
+        <p id="register-password-hint" class="password-hint">至少8位，含大小写字母、数字及特殊字符</p>
         <el-form-item label="确认密码" prop="confirmPassword"><el-input v-model="form.confirmPassword" :prefix-icon="Lock" size="large" placeholder="再次输入密码" autocomplete="new-password" show-password /></el-form-item>
         <el-button class="register-next" size="large" type="primary" native-type="submit">下一步</el-button>
       </el-form>

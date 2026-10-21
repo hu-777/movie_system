@@ -1,6 +1,5 @@
-<template>
-  <div>
-    <div class="card" style="margin-bottom: 5px;">
+<template><div class="management-page">
+    <div class="card page-toolbar">
       <el-input v-model="data.goodsName" style="width: 300px; margin-right: 10px" placeholder="请输入电影名称查询"></el-input>
       <el-button type="primary" @click="search">查询</el-button>
       <el-button type="info" style="margin: 0 10px" @click="reset">重置</el-button>
@@ -217,97 +216,20 @@ const changeStatus = (row, status) => {
   updateOrderStatus(row, status);
 };
 
-// 实际更新订单状态的方法
-const updateOrderStatus = (row, status) => {
-  // 保存原始状态，用于错误恢复
-  const originalStatus = row.status;
-  row.status = status;
-
-  // 先更新订单状态，这是核心功能，必须保证成功
-  request.put('/orders/update', row).then(res => {
-    if (res.code === '200') {
-      // 订单状态更新成功后，再尝试更新库存（如果需要）
-      if (status === '已取消' || status === '已退票') {
-        // 确保库存更新的重要性，不要放在单独的 try-catch 中忽略错误
-        updateStock(row, status).then(() => {
-          // 重新加载数据并显示成功消息
-          load();
-          ElMessage.success('操作成功');
-        }).catch(err => {
-          console.error('库存更新失败:', err);
-          ElMessage.warning('订单状态已更新，但库存更新失败，请联系管理员');
-          load();
-        });
-      } else {
-        // 其他状态更新直接成功
-        load();
-        ElMessage.success('操作成功');
-      }
-    } else {
-      // 订单状态更新失败，恢复原状态
-      row.status = originalStatus;
-      ElMessage.error(res.msg || '操作失败');
-      load();
-    }
-  }).catch(err => {
-    // 网络错误，恢复原状态
-    row.status = originalStatus;
-    ElMessage.error('网络错误，请稍后重试');
-    load();
-  });
-};
-
-// 单独的库存更新函数
-const updateStock = (row, status) => {
-  return new Promise((resolve, reject) => {
-    // 检查订单对象中是否有必要的信息
-    if (!row || !row.num) {
-      console.error('订单信息不完整，无法更新库存');
-      reject(new Error('订单信息不完整'));
-      return;
-    }
-
-    // 根据后端实际接口设计选择合适的API调用方式
-    request.post('/orders/updateStock', {
-      orderId: row.id,
-      status: status,
-      refund: true
-    }).then(stockRes => {
-      if (stockRes.code === '200') {
-        console.log('库存更新成功');
-        resolve();
-      } else {
-        console.warn('库存更新失败:', stockRes.msg || '未知错误');
-        reject(new Error(stockRes.msg || '库存更新失败'));
-      }
-    }).catch(stockErr => {
-      console.warn('库存更新请求失败，可能是接口不存在:', stockErr);
-      reject(stockErr);
-
-      // 尝试其他方式更新库存
-      if (row.goodsId) {
-        request.post('/goods/stock', {
-          id: row.goodsId,
-          quantity: row.num,
-          type: 'refund'
-        }).catch(err2 => {
-          console.warn('库存更新方式2也失败:', err2);
-
-          // 尝试方式3：使用更通用的接口格式
-          request.post('/common/updateStock', {
-            referenceId: row.id,
-            referenceType: 'order',
-            quantity: row.num,
-            operation: 'increase'
-          }).catch(err3 => {
-            console.warn('库存更新方式3也失败:', err3);
-          });
-        });
-      }
-    });
-  });
-};
-
+const pendingOrders = new Set()
+const updateOrderStatus = async (row, status) => {
+  if (pendingOrders.has(row.id)) return
+  pendingOrders.add(row.id)
+  try {
+    const res = await request.put('/orders/update', { id: row.id, status })
+    if (res.code !== '200') throw new Error(res.msg || '操作失败')
+    ElMessage.success('操作成功')
+    load()
+  } catch (error) {
+    ElMessage.error(error.message || '操作失败，请重试')
+    load()
+  } finally { pendingOrders.delete(row.id) }
+}
 // 导出电影票功能 - 使用Canvas生成电影票样式图片
 const exportInvoice = (row) => {
   try {
@@ -578,3 +500,4 @@ const handlePageSizeChange = (size) => {
 // 初始加载数据
 load();
 </script>
+

@@ -8,6 +8,8 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 public interface OrdersMapper {
+    @Select("select * from orders where id = #{id} for update")
+    Orders selectForUpdate(Integer id);
     int insert(Orders orders);
 
     @Delete("delete from orders where id = #{id}")
