@@ -18,6 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin")   //  定义路径
 public class AdminController {
+    @Resource private com.example.security.IdentityService identities;
 
     @Resource
     private AdminServiceImpl adminServiceImpl;
@@ -35,8 +36,9 @@ public class AdminController {
     }
 
     @PutMapping("/update")  //  更新管理员信息
-    public Result updateById(@RequestBody Admin admin) {
-        adminServiceImpl.updateById(admin);
+    public Result updateById(@RequestBody com.example.security.IdentityService.Profile admin) {
+        if (admin.id == null || adminServiceImpl.getById(admin.id) == null) throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "账户不存在");
+        identities.updateProfile("ADMIN", admin.id, admin);
         return Result.success();
     }
 

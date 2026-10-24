@@ -52,7 +52,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (ObjectUtil.isEmpty(user.getSecurityQuestion()) || ObjectUtil.isEmpty(user.getSecurityAnswer())) {
             throw new CustomException("该用户未设置密保问题");
         }
-        if (!securityAnswer.equals(user.getSecurityAnswer())) {
+        if (securityAnswer == null || !passwordEncoder.matches(securityAnswer, user.getSecurityAnswer())) {
             throw new CustomException("密保答案错误");
         }
         // 验证新密码是否符合正则要求
@@ -65,7 +65,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     // 密码验证方法
     private boolean validatePassword(String password) {
-        if (password.length() < 8) {
+        if (password == null || password.length() < 8 || password.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 72) {
             return false;
         }
         if (!password.matches(".*[A-Z].*")) {
@@ -85,14 +85,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (ObjectUtil.isNotNull(dbUser)) {
             throw new CustomException("用户已存在");
         }
-        if (ObjectUtil.isEmpty(user.getPassword())) {
-            user.setPassword("123456");
-        }
+        com.example.security.IdentityService.passwordPolicy(user.getPassword());
         if (ObjectUtil.isEmpty(user.getName())) {
             user.setName(user.getUsername());
         }
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
+        if (user.getSecurityAnswer() != null) user.setSecurityAnswer(passwordEncoder.encode(user.getSecurityAnswer()));
         user.setRole("USER");
         userMapper.insert(user);
     }
@@ -148,6 +147,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (ObjectUtil.isEmpty(user.getSecurityQuestion()) || ObjectUtil.isEmpty(user.getSecurityAnswer())) {
             return false;
         }
-        return securityAnswer.equals(user.getSecurityAnswer());
+        return securityAnswer != null && passwordEncoder.matches(securityAnswer, user.getSecurityAnswer());
     }
 }

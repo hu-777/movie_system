@@ -1,4 +1,6 @@
 import {createRouter, createWebHistory} from 'vue-router'
+import { refreshUser } from '@/stores/auth'
+import { ElMessage } from 'element-plus'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,4 +36,19 @@ const router = createRouter({
   ]
 })
 
+const publicPaths = new Set(['/login', '/register', '/forgotPassword', '/home', '/buy'])
+const adminPaths = new Set(['/admin', '/user', '/goods', '/goodsStock', '/category', '/notice', '/charts'])
+router.beforeEach(async to => {
+  let user
+  try { user = await refreshUser() }
+  catch (error) { ElMessage.error('服务暂时不可用，请稍后重试'); return publicPaths.has(to.path) ? true : '/login' }
+  if (!publicPaths.has(to.path) && !user) return { path: '/login', query: { redirect: to.fullPath } }
+  if (adminPaths.has(to.path) && user?.role !== 'ADMIN') { ElMessage.warning('无权访问管理页面'); return '/home' }
+  if (to.path.startsWith('/seatSelection') && user?.role !== 'USER') return '/buy'
+  return true
+})
+window.addEventListener('auth-expired', () => {
+  const route = router.currentRoute.value
+  if (!publicPaths.has(route.path)) router.replace({path:'/login',query:{redirect:route.fullPath}})
+})
 export default router

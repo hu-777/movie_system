@@ -17,6 +17,7 @@ public class Account {
     /** 名称 */
     private String name;
     /** 密码 */
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     /** 角色标识 */
     private String role;
@@ -25,6 +26,7 @@ public class Account {
 
     // 用于数据传输，不进行数据库映射
     @TableField(exist = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String newPassword;
 
     // User类中才有，不映射

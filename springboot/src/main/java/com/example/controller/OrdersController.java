@@ -1,104 +1,45 @@
 package com.example.controller;
-
 import com.example.common.Result;
-import com.example.entity.Orders;
+import com.example.entity.*;
 import com.example.service.OrdersService;
-import com.github.pagehelper.PageInfo;
+import com.example.security.IdentityService;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
+import java.util.*;
 @RestController
 @RequestMapping("/orders")
 public class OrdersController {
-    @Resource
-    private OrdersService ordersService;
-
-    @PostMapping("/add")
-    public Result add(@RequestBody Orders orders) {
-        ordersService.add(orders);
-        return Result.success();
+    @Resource private OrdersService service;
+    @Resource private IdentityService identities;
+    public static class SeatOrder { public Integer goodsId,screeningId;public String seatInfo; }
+    public static class StatusChange { public Integer id;public String status; }
+    public static class ExportRequest { public List<Integer> orderIds; }
+    @PostMapping("/addWithSeats") public Result add(@RequestBody SeatOrder input){
+        Account account=identities.current();
+        if(!"USER".equals(account.getRole()))throw new AccessDeniedException("仅用户可购票");
+        service.addOrderWithSeats(input.goodsId,input.screeningId,account.getId(),null,input.seatInfo);return Result.success();
     }
-
-    @DeleteMapping("/delete/{id}")
-    public Result deleteById(@PathVariable Integer id) {
-        ordersService.deleteById(id);
-        return Result.success();
+    @GetMapping("/selectAll") public Result all(){Account account=identities.current();return Result.success(service.selectAll(account.getRole(),account.getId()));}
+    @GetMapping("/selectPage") public Result page(@RequestParam(defaultValue="1") int pageNum,@RequestParam(defaultValue="10") int pageSize,
+            @RequestParam(required=false) String orderNo,@RequestParam(required=false) String goodsName){
+        Account account=identities.current();Orders filter=new Orders();filter.setOrderNo(orderNo);filter.setGoodsName(goodsName);
+        return Result.success(service.selectPage(filter,Math.max(1,pageNum),Math.min(100,Math.max(1,pageSize)),account.getId(),account.getRole()));
     }
-
-    @PutMapping("/update")
-    public Result updateById(@RequestBody Orders orders) {
-        ordersService.updateById(orders);
-        return Result.success();
+    @GetMapping("/selectById/{id}") public Result one(@PathVariable Integer id){Orders order=service.selectById(id);identities.assertOwner(order);return Result.success(order);}
+    @PutMapping("/update") public Result update(@RequestBody StatusChange input){
+        Orders order=service.selectById(input.id);identities.assertOwner(order);Account account=identities.current();
+        if("ADMIN".equals(account.getRole())) { if(!"已退票".equals(input.status))throw new AccessDeniedException("管理员仅可确认退票"); }
+        else if(!Arrays.asList("待取票","已取消","已完成","待退票").contains(input.status))throw new AccessDeniedException("不能执行该订单操作");
+        Orders patch=new Orders();patch.setId(input.id);patch.setStatus(input.status);service.updateById(patch);return Result.success();
     }
-
-    @GetMapping("/selectById/{id}")
-    public Result selectById(@PathVariable Integer id) {
-        Orders orders = ordersService.selectById(id);
+    @DeleteMapping("/delete/{id}") public Result delete(@PathVariable Integer id){service.deleteById(id);return Result.success();}
+    @PostMapping("/exportBatchInvoices") public Result export(@RequestBody ExportRequest input){
+        if(input.orderIds==null || input.orderIds.isEmpty() || input.orderIds.size()>100)throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"请选择1至100个订单");
+        List<Orders> orders=new ArrayList<>();
+        for(Integer id:input.orderIds){Orders order=service.selectById(id);identities.assertOwner(order);orders.add(order);}
         return Result.success(orders);
-    }
-
-    @GetMapping("/selectAll")
-    public Result selectAll(@RequestParam String userRole, @RequestParam Integer userId) {
-        List<Orders> list = ordersService.selectAll(userRole, userId);
-        return Result.success(list);
-    }
-
-    @GetMapping("/selectPage")
-    public Result selectPage(Orders orders,
-                             @RequestParam(defaultValue = "1") Integer pageNum,
-                             @RequestParam(defaultValue = "10") Integer pageSize,
-                             @RequestParam Integer userId,
-                             @RequestParam String userRole,
-                             @RequestParam(required = false) String goodsName) {
-        // 设置电影名称到Orders对象
-        if (goodsName != null && !goodsName.isEmpty()) {
-            orders.setGoodsName(goodsName);
-        }
-        // 添加日志输出，检查参数
-        System.out.println("查询订单参数 - userId: " + userId + ", userRole: " + userRole + ", goodsName: " + goodsName);
-        PageInfo<Orders> page = ordersService.selectPage(orders, pageNum, pageSize, userId, userRole);
-        // 输出查询结果数量
-        System.out.println("查询到的订单数量: " + (page.getList() != null ? page.getList().size() : 0));
-        return Result.success(page);
-    }
-
-    // 在OrdersController中添加选座购买的方法
-    // 修改选座购买接口，移除seatIds参数
-    // 修改addWithSeats方法
-    @PostMapping("/addWithSeats")
-    public Result addWithSeats(@RequestBody Orders request) {
-        ordersService.addOrderWithSeats(request.getGoodsId(), request.getScreeningId(),
-                request.getUserId(), null, request.getSeatInfo());
-        return Result.success();
-    }
-    // 修改批量导出发票接口，确保返回完整的订单信息
-    @PostMapping("/exportBatchInvoices")
-    public Result exportBatchInvoices(@RequestBody Map<String, Object> params) {
-        try {
-            List<Integer> orderIds = (List<Integer>) params.get("orderIds");
-            if (orderIds == null || orderIds.isEmpty()) {
-                return Result.error("请选择要导出的订单");
-            }
-            
-            // 批量导出电影票数据
-            List<Orders> orderList = new ArrayList<>();
-            for (Integer orderId : orderIds) {
-                Orders order = ordersService.selectById(orderId);
-                if (order != null) {
-                    // 确保返回完整的订单信息，包括座位信息、影厅信息等
-                    orderList.add(order);
-                }
-            }
-            
-            return Result.success(orderList);
-        } catch (Exception e) {
-            return Result.error("导出失败: " + e.getMessage());
-        }
     }
 }

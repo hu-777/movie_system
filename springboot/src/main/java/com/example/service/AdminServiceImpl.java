@@ -46,9 +46,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper,Admin> implements 
             throw new CustomException("用户已存在");
         }
         //  如果未提供密码，设为 admin
-        if (ObjectUtil.isEmpty(admin.getPassword())) {
-            admin.setPassword("admin");
-        }
+        com.example.security.IdentityService.passwordPolicy(admin.getPassword());
         // 如果未提供姓名，设置默认姓名为用户名
         if (ObjectUtil.isEmpty(admin.getName())) {
             admin.setName(admin.getUsername());
@@ -94,6 +92,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper,Admin> implements 
         if (!passwordEncoder.matches(account.getPassword(), dbAdmin.getPassword())) {
             throw new CustomException("原密码错误");
         }
+        com.example.security.IdentityService.passwordPolicy(account.getNewPassword());
         dbAdmin.setPassword(passwordEncoder.encode(account.getNewPassword()));
         adminMapper.updateById(dbAdmin);
     }

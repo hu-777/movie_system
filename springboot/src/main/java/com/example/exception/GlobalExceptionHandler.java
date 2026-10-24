@@ -11,6 +11,24 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @ControllerAdvice(basePackages = "com.example.controller")
 public class GlobalExceptionHandler {
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<Result> status(org.springframework.web.server.ResponseStatusException e) {
+        Result result=Result.error(e.getReason());result.setCode(String.valueOf(e.getRawStatusCode()));
+        return org.springframework.http.ResponseEntity.status(e.getRawStatusCode()).body(result);
+    }
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<Result> denied(Exception e) {
+        Result result=Result.error("无权执行此操作");result.setCode("403");
+        return org.springframework.http.ResponseEntity.status(403).body(result);
+    }
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<Result> unauthenticated(Exception e) {
+        Result result=Result.error("请先登录");result.setCode("401");
+        return org.springframework.http.ResponseEntity.status(401).body(result);
+    }
 
     private static final Log log = LogFactory.get();
 

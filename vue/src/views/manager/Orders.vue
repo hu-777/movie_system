@@ -72,6 +72,7 @@
 </template>
 
 <script setup>
+import { getUser } from '@/stores/auth'
 import request from "@/utils/request";
 import { reactive, ref } from "vue";
 import { ElMessageBox, ElMessage } from "element-plus";
@@ -106,7 +107,7 @@ const formatDateTime = (dateString) => {
 
 const loading = ref(false);
 const data = reactive({
-  user: JSON.parse(localStorage.getItem('system-user') || '{}'),
+  user: getUser(),
   pageNum: 1,
   pageSize: 10,
   total: 0,
@@ -126,21 +127,13 @@ if (!data.user.role) {
 
 // 分页查询
 const load = () => {
-  console.log('加载订单数据，参数:', {
-    pageNum: data.pageNum,
-    pageSize: data.pageSize,
-    goodsName: data.goodsName,
-    userId: data.user.id,
-    userRole: data.user.role
-  });
+
   loading.value = true;
   request.get('/orders/selectPage', {
     params: {
       pageNum: data.pageNum,
       pageSize: data.pageSize,
-      goodsName: data.goodsName,
-      userId: data.user.id,
-      userRole: data.user.role
+      goodsName: data.goodsName
     }
   }).then(res => {
     console.log('订单查询响应:', res);

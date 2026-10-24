@@ -19,6 +19,7 @@
 </template>
 
 <script setup>
+import { getUser } from '@/stores/auth'
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Search, Location, Right, InfoFilled } from '@element-plus/icons-vue'
@@ -27,7 +28,7 @@ import request from '@/utils/request'
 import MoviePoster from '@/components/MoviePoster.vue'
 const route = useRoute()
 const router = useRouter()
-const isAdmin = JSON.parse(localStorage.getItem('system-user') || '{}').role === 'ADMIN'
+const isAdmin = getUser().role === 'ADMIN'
 const keyword = ref(typeof route.query.name === 'string' ? route.query.name : '')
 const appliedKeyword = ref(keyword.value)
 const movies = ref([])

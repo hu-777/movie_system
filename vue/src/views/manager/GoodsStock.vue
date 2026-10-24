@@ -45,7 +45,7 @@
           <el-input type="textarea" v-model="data.form.comment" autocomplete="off"/>
         </el-form-item>
         <el-form-item label="海报" prop="img">
-          <el-upload :action="uploadUrl" list-type="picture" :on-success="handleImgSuccess">
+          <el-upload :http-request="uploadImage" list-type="picture" :on-success="handleImgSuccess">
             <el-button type="primary">上传图片</el-button>
           </el-upload>
         </el-form-item>
@@ -132,6 +132,7 @@
 </template>
 
 <script setup>
+import { uploadImage } from '@/utils/request'
 import { ref, reactive, onMounted } from "vue"
 import { ElMessage, ElMessageBox } from 'element-plus' // 注意加上 ElMessageBox
 import request from '@/utils/request'

@@ -85,7 +85,7 @@
         </el-form-item>
         <el-form-item label="电影海报" prop="img">
           <el-upload
-            :action="uploadUrl"
+            :http-request="uploadImage"
             list-type="picture"
             :on-success="handleImgSuccess"
             :on-error="handleImgError"
@@ -125,6 +125,8 @@
 </template>
 
 <script setup>
+import { uploadImage } from '@/utils/request'
+import { getUser } from '@/stores/auth'
 import request from "@/utils/request";
 import {reactive} from "vue";
 import {ElMessageBox, ElMessage} from "element-plus";
@@ -133,7 +135,7 @@ import {ElMessageBox, ElMessage} from "element-plus";
 const uploadUrl = import.meta.env.VITE_BASE_URL + '/files/upload'
 
 const data = reactive({
-  user: JSON.parse(localStorage.getItem('system-user') || '{}'),
+  user: getUser(),
   pageNum: 1,
   pageSize: 10,
   total: 0,

@@ -41,9 +41,10 @@
 
     <el-dialog title="信息" width="600px" v-model="data.formVisible" :close-on-click-modal="false" destroy-on-close>
       <el-form :model="data.form" label-position="top" class="management-form">
+        <el-form-item v-if="!data.form.id" label="初始密码"><el-input v-model="data.form.password" show-password autocomplete="new-password" placeholder="至少8位，含大小写字母、数字及特殊字符" /></el-form-item>
         <el-form-item label="头像" prop="avatar">
           <el-upload 
-            :action="uploadUrl" 
+            :http-request="uploadImage"
             list-type="picture" 
             :on-success="handleImgSuccess" 
             :on-error="handleImgError"
@@ -77,6 +78,7 @@
 </template>
 
 <script setup>
+import { uploadImage } from '@/utils/request'
 import request from "@/utils/request";
 import {reactive} from "vue";
 import {ElMessageBox, ElMessage} from "element-plus";

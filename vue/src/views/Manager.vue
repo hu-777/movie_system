@@ -12,12 +12,12 @@
           </router-link>
         </div>
       </nav>
-      <div class="sidebar-bottom"><button class="nav-item logout-button" @click="logout"><el-icon :size="18"><SwitchButton /></el-icon><span>退出登录</span></button></div>
+      <div class="sidebar-bottom"><button v-if="user.id" class="nav-item logout-button" @click="logout"><el-icon :size="18"><SwitchButton /></el-icon><span>退出登录</span></button><router-link v-else class="nav-item" to="/login">登录</router-link></div>
     </aside>
     <div class="cinema-workspace">
       <header class="workspace-header">
         <div class="header-left"><button class="icon-button" :aria-label="collapsed ? '展开导航' : '折叠导航'" @click="toggleNavigation"><el-icon :size="19"><Fold v-if="!collapsed" /><Expand v-else /></el-icon></button><span class="breadcrumb-root">湖叶影院</span><span class="breadcrumb-divider">/</span><span>{{ pageTitle }}</span></div>
-        <router-link class="profile-link" to="/person"><img v-if="user.avatar" :src="user.avatar" alt="我的头像" @error="user.avatar = ''" /><span v-else class="profile-avatar">{{ (user.name || user.username || '湖').slice(0, 1) }}</span><span class="profile-name">{{ user.name || user.username }}</span></router-link>
+        <router-link class="profile-link" :to="user.id ? '/person' : '/login'"><img v-if="user.avatar" :src="user.avatar" alt="我的头像" @error="user.avatar = ''" /><span v-else class="profile-avatar">{{ (user.name || user.username || '湖').slice(0, 1) }}</span><span class="profile-name">{{ user.name || user.username || '登录' }}</span></router-link>
       </header>
       <main class="workspace-main"><router-view @updateUser="updateUser" /></main>
     </div>
@@ -25,17 +25,20 @@
 </template>
 
 <script setup>
+import { getUser, currentUser, setUser } from '@/stores/auth'
+import request from '@/utils/request'
+import { ElMessage } from 'element-plus'
 import { computed, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { House, Film, Tickets, DataAnalysis, Collection, VideoCamera, Bell, User, Setting, Lock, SwitchButton, Fold, Expand } from '@element-plus/icons-vue'
 import CinemaBrand from '@/components/CinemaBrand.vue'
 const router = useRouter()
 const route = useRoute()
-const user = ref(JSON.parse(localStorage.getItem('system-user') || '{}'))
+const user = computed(() => currentUser.value || {})
 const collapsed = ref(false)
 const mobileOpen = ref(false)
 const isAdmin = computed(() => user.value.role === 'ADMIN')
-if (!user.value.id) router.replace('/login')
+
 const navigation = computed(() => [
   { label: '影院', items: [
     { path: '/home', label: '影院首页', icon: House },
@@ -57,8 +60,8 @@ const pageTitle = computed(() => navigation.value.flatMap(group => group.items).
 watch(pageTitle, title => { document.title = `${title} · 湖叶影院` }, { immediate: true })
 watch(() => route.path, () => { mobileOpen.value = false })
 const toggleNavigation = () => { if (window.innerWidth <= 760) mobileOpen.value = !mobileOpen.value; else collapsed.value = !collapsed.value }
-const updateUser = () => { user.value = JSON.parse(localStorage.getItem('system-user') || '{}') }
-const logout = () => { localStorage.removeItem('system-user'); router.push('/login') }
+const updateUser = () => {}
+const logout = async () => { try { await request.post('/logout'); setUser(null); await router.push('/login') } catch(e) { if (e.response?.status === 401) { setUser(null); router.push('/login') } else { ElMessage.error('退出失败，请重试') } } }
 </script>
 
 <style scoped>

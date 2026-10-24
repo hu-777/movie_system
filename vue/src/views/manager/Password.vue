@@ -26,6 +26,7 @@
 </template>
 
 <script setup>
+import { getUser, setUser } from '@/stores/auth'
 import {reactive, ref} from "vue"
 import request from "@/utils/request";
 import {ElMessage} from "element-plus";
@@ -64,7 +65,7 @@ const validatePasswordStrength = (rule, value, callback) => {
 }
 
 const data = reactive({
-  user: JSON.parse(localStorage.getItem('system-user') || '{}'),
+  user: { ...getUser(), password: '' },
   rules: {
     password: [
       { required: true, message: '请输入原密码', trigger: 'blur' },
@@ -118,12 +119,12 @@ const save = () => {
         if (res.code === '200') {
           ElMessage.success('修改密码成功')
           //清除缓存到登录的界面
-          localStorage.removeItem('system-user')
+          setUser(null)
           router.push('/login')
         } else {
           ElMessage.error(res.msg)
         }
-      })
+      }).catch(error => ElMessage.error(error.message || '修改失败，请稍后重试'))
     }
   })
 }

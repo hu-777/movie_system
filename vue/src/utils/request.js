@@ -1,46 +1,50 @@
+import axios from 'axios'
 import { ElMessage } from 'element-plus'
-import router from '../router'
-import axios from "axios";
-
-const request = axios.create({
-    baseURL: import.meta.env.VITE_BASE_URL,
-    timeout: 30000  // 后台接口超时时间设置
+const request = axios.create({ baseURL:'/api', timeout:30000, withCredentials:true })
+let csrfPromise, csrfToken, reporting = false
+export function clearCsrf() { csrfToken = null; csrfPromise = null }
+async function csrf() {
+  if (csrfToken) return csrfToken
+  if (!csrfPromise) csrfPromise = axios.get('/api/auth/csrf', {withCredentials:true,timeout:30000}).then(res => {
+    csrfToken = res.data.data.token; return csrfToken
+  }).finally(() => { csrfPromise = null })
+  return csrfPromise
+}
+request.interceptors.request.use(async config => {
+  if (!['get','head','options'].includes((config.method || 'get').toLowerCase())) config.headers['X-CSRF-TOKEN'] = await csrf()
+  return config
 })
-
-// request 拦截器
-// 可以自请求发送前对请求做一些处理
-request.interceptors.request.use(config => {
-    config.headers['Content-Type'] = 'application/json;charset=utf-8';
-    return config
-}, error => {
-    return Promise.reject(error)
-});
-
-// response 拦截器
-// 可以在接口响应后统一处理结果
-request.interceptors.response.use(
-    response => {
-        let res = response.data;
-        // 如果是返回的文件
-        if (response.config.responseType === 'blob') {
-            return res
-        }
-        // 兼容服务端返回的字符串数据
-        if (typeof res === 'string') {
-            res = res ? JSON.parse(res) : res
-        }
-        // 当权限验证不通过的时候给出提示
-        if (res.code === '401') {
-            ElMessage.error(res.msg);
-            router.push("/login")
-        }
-        return res;
-    },
-        error => {
-        console.log('err' + error)
-        return Promise.reject(error)
+request.interceptors.response.use(response => {
+  if (['/login','/logout','/updatePassword','/resetPassword'].includes(response.config.url)) clearCsrf()
+  return response.data
+}, async error => {
+  const status = error.response?.status
+  error.message = error.response?.data?.msg || error.message
+  if (status === 401 && !error.config?.quietAuth && error.config?.url !== '/login') {
+    clearCsrf(); window.dispatchEvent(new Event('auth-expired'))
+    if (!reporting) { reporting = true; ElMessage.warning('登录已失效，请重新登录'); setTimeout(() => reporting = false, 1500) }
+  }
+  if (status === 403) {
+    clearCsrf()
+    // An expired session can fail CSRF before the authentication check.
+    // Check identity without replaying the original purchase or mutation.
+    try { await axios.get('/api/auth/me', {withCredentials:true, timeout:10000}) }
+    catch (probe) {
+      if (probe.response?.status === 401) window.dispatchEvent(new Event('auth-expired'))
     }
-)
-
-
+  }
+  // Preserve the existing Result contract for validated business errors.
+  if ([400, 429].includes(status) && error.response?.data?.code) return error.response.data
+  if (status === 403 && !reporting) {
+    reporting = true; ElMessage.error(error.message || '无权执行此操作')
+    setTimeout(() => reporting = false, 1500)
+  }
+  return Promise.reject(error)
+})
+export async function uploadImage(options) {
+  const body = new FormData(); body.append('file',options.file)
+  const result = await request.post('/files/upload',body)
+  if (result.code !== '200') throw new Error(result.msg || '上传失败')
+  return result
+}
 export default request

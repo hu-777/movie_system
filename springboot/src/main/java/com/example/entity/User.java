@@ -14,6 +14,7 @@ public class User extends Account {
     /** 密保问题 */
     private String securityQuestion;
     /** 密保答案 */
+    @com.fasterxml.jackson.annotation.JsonProperty(access = com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY)
     private String securityAnswer;
 
     public String getSex() {

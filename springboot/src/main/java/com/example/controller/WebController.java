@@ -42,43 +42,6 @@ public class WebController {
     /**
      * 登录
      */
-    @PostMapping("/login")
-    public Result login(@RequestBody Account account) {
-        Account ac = null;
-        if ("ADMIN".equals(account.getRole())) {
-            ac = adminServiceImpl.login(account);
-        }else{
-            ac = userServiceImpl.login(account);
-        }
-        return Result.success(ac);
-    }
-
-    /**
-     * 注册
-     */
-    @PostMapping("/register")
-    public Result register(@RequestBody User user) {
-        userServiceImpl.register(user);
-        return Result.success();
-    }
-
-    /**
-     * 修改密码
-     */
-    @PutMapping("/updatePassword")
-    public Result updatePassword(@RequestBody Account account) {
-        if ("ADMIN".equals(account.getRole())) {
-            adminServiceImpl.updatePassword(account);
-        }else{
-            userServiceImpl.updatePassword(account);
-        }
-        return Result.success();
-    }
-
-    /**
-     * 获取统计图数据
-     * @return 动态数据
-     * */
     @GetMapping("/lineCharts")
     public Result lineCharts() {
         List<Orders> list = ordersService.selectAllOrders();
@@ -238,44 +201,4 @@ public class WebController {
                 .set("references", referenceLines)); // 返回参考线数据
     }
 
-    @GetMapping("/check-username")
-    public Result checkUsername(@RequestParam String username) {
-        User user = userServiceImpl.find(username);
-        if (user != null) {
-            // 用户名已存在
-            return Result.success(true);
-        } else {
-            // 用户名可用
-            return Result.success(false);
-        }
-    }
-    
-    @PostMapping("/getSecurityQuestion")
-    public Result getSecurityQuestion(@RequestBody Map<String, String> request) {
-        String username = request.get("username");
-        String securityQuestion = userServiceImpl.getSecurityQuestion(username);
-        return Result.success(securityQuestion);
-    }
-    
-    @PostMapping("/verifySecurityAnswer")
-    public Result verifySecurityAnswer(@RequestBody Map<String, String> request) {
-        String username = request.get("username");
-        String securityAnswer = request.get("securityAnswer");
-        boolean isCorrect = userServiceImpl.verifySecurityAnswer(username, securityAnswer);
-        if (isCorrect) {
-            return Result.success();
-        } else {
-            return Result.error("密保答案错误");
-        }
-    }
-    
-    @PostMapping("/resetPassword")
-    public Result resetPassword(@RequestBody Map<String, String> request) {
-        String username = request.get("username");
-        String securityAnswer = request.get("securityAnswer");
-        String newPassword = request.get("newPassword");
-        userServiceImpl.resetPassword(username, securityAnswer, newPassword);
-        return Result.success();
-    }
-    
 }

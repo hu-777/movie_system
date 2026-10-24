@@ -18,6 +18,7 @@
   </div>
 </template>
 <script setup>
+import { getUser } from '@/stores/auth'
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
@@ -51,11 +52,11 @@ async function load() {
 }
 async function submit() {
   if (submitting.value || !selected.value.length || tooLate.value) return
-  const user = JSON.parse(localStorage.getItem('system-user') || '{}')
+  const user = getUser()
   if (!user.id) { router.push('/login'); return }
   submitting.value = true
   try {
-    const res = await request.post('/orders/addWithSeats', {goodsId:screening.value.goodsId, screeningId:screening.value.id, userId:user.id, seatInfo:selected.value.join(',')})
+    const res = await request.post('/orders/addWithSeats', {goodsId:screening.value.goodsId, screeningId:screening.value.id, seatInfo:selected.value.join(',')})
     if (res.code !== '200') throw new Error(res.msg || '订单创建失败')
     ElMessage.success('订单已创建，请完成支付'); await router.push('/orders')
   } catch(e) { ElMessage.error(e.message || '提交失败，请检查订单后重试'); await load() }

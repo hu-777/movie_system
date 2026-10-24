@@ -22,11 +22,12 @@
 </template>
 
 <script setup>
+import { getUser } from '@/stores/auth'
 import { computed, ref, onMounted } from 'vue'
 import { Calendar, Right, ArrowRight, TopRight, Tickets, DataAnalysis, User, Bell } from '@element-plus/icons-vue'
 import MoviePoster from '@/components/MoviePoster.vue'
 import request from '@/utils/request'
-const user = JSON.parse(localStorage.getItem('system-user') || '{}')
+const user = getUser()
 const isAdmin = user.role === 'ADMIN'
 const today = new Intl.DateTimeFormat('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' }).format(new Date())
 const films = ref([])

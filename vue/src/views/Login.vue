@@ -33,13 +33,15 @@
 </template>
 
 <script setup>
+import { setUser } from '@/stores/auth'
 import { reactive, ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { User, Lock, Right } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import CinemaBrand from '@/components/CinemaBrand.vue'
 import request from '@/utils/request'
 const router = useRouter()
+const route = useRoute()
 const formRef = ref()
 const submitting = ref(false)
 const form = reactive({ username: '', password: '', role: 'USER' })
@@ -51,10 +53,11 @@ const login = async () => {
   try {
     const res = await request.post('/login', form)
     if (res.code === '200' && res.data?.id) {
-      localStorage.setItem('system-user', JSON.stringify(res.data))
-      router.push('/home')
+      setUser(res.data)
+      const destination = route.query.redirect
+      router.replace(typeof destination === 'string' && destination.startsWith('/') && !destination.startsWith('//') ? destination : '/home')
     } else ElMessage.error(res.msg || '登录失败，请检查账号和密码')
-  } catch { ElMessage.error('暂时无法连接影院，请稍后重试') }
+  } catch (error) { ElMessage.error(error.response?.data?.msg || '暂时无法连接影院，请稍后重试') }
   finally { submitting.value = false }
 }
 </script>

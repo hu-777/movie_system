@@ -6,7 +6,7 @@
           <el-upload 
             :show-file-list="false" 
             class="avatar-uploader" 
-            :action="uploadUrl" 
+            :http-request="uploadImage"
             :on-success="handleFileUpload" 
             :on-error="handleFileError"
             :before-upload="beforeAvatarUpload"
@@ -44,6 +44,8 @@
 </template>
 
 <script setup>
+import { uploadImage } from '@/utils/request'
+import { getUser, setUser } from '@/stores/auth'
 import {reactive} from "vue"
 import request from "@/utils/request";
 import {ElMessage} from "element-plus";
@@ -52,7 +54,7 @@ import {ElMessage} from "element-plus";
 const uploadUrl = import.meta.env.VITE_BASE_URL + '/files/upload'
 
 const data = reactive({
-  user: JSON.parse(localStorage.getItem('system-user') || '{}'),
+  user: { ...getUser() },
 })
 
 const handleFileUpload = (file) => {
@@ -69,7 +71,7 @@ const updateUser = (url) => {
         if (res.code === '200') {
           ElMessage.success('更新成功');
           // 更新缓存中的用户信息
-          localStorage.setItem('system-user', JSON.stringify(data.user));
+          setUser(res.data);
           emit('updateUser');
         } else {
           ElMessage.error(res.msg);
@@ -83,7 +85,7 @@ const updateUser = (url) => {
 
 // 保存用户信息
 const save = () => {
-  const url = data.user.role === 'ADMIN' ? '/admin/update' : '/user/update';
+  const url = '/auth/profile';
   updateUser(url);
 };
 

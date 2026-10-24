@@ -16,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/user")
 public class UserController {
+    @Resource private com.example.security.IdentityService identities;
 
     @Resource
     private UserServiceImpl userServiceImpl;
@@ -42,8 +43,9 @@ public class UserController {
      * 修改
      */
     @PutMapping("/update")
-    public Result updateById(@RequestBody User user) {
-        userServiceImpl.updateById(user);
+    public Result updateById(@RequestBody com.example.security.IdentityService.Profile user) {
+        if (user.id == null || userServiceImpl.getById(user.id) == null) throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "账户不存在");
+        identities.updateProfile("USER", user.id, user);
         return Result.success();
     }
 

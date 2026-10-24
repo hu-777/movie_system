@@ -19,7 +19,7 @@
         <div class="register-actions"><el-button size="large" @click="prevStep">上一步</el-button><el-button size="large" type="primary" native-type="submit">下一步</el-button></div>
       </el-form>
       <el-form v-if="step === 3" ref="formRef" :model="form" :rules="step3Rules" label-position="top" @submit.prevent="register">
-        <div class="register-avatar"><el-upload v-model:file-list="fileList" :action="uploadUrl" :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload" :on-error="handleAvatarError" accept=".jpg,.jpeg,.png,.gif" aria-label="上传头像"><img v-if="form.avatar" :src="form.avatar" alt="头像预览" /><el-icon v-else :size="24"><Plus /></el-icon></el-upload><p>头像选填 · JPG / PNG / GIF，最大 2MB</p></div>
+        <p class="form-hint">注册后可在个人资料设置头像</p>
         <el-form-item label="昵称" prop="name"><el-input v-model="form.name" :prefix-icon="User" size="large" placeholder="选填" /></el-form-item>
         <el-form-item label="性别"><el-radio-group v-model="form.sex"><el-radio label="男">男</el-radio><el-radio label="女">女</el-radio></el-radio-group></el-form-item>
         <el-form-item label="手机号" prop="phone"><el-input v-model="form.phone" :prefix-icon="Phone" size="large" placeholder="选填" autocomplete="tel" /></el-form-item>
@@ -32,6 +32,7 @@
 </template>
 
 <script setup>
+
   import { reactive, ref, onMounted } from "vue";
   import { User, Lock, HelpFilled, Document, Phone, Message, Plus } from "@element-plus/icons-vue";
   import request from "@/utils/request";
@@ -210,78 +211,6 @@
     if (step.value > 1) {
       step.value--;
     }
-  };
-
-  // 头像上传前验证
-  const beforeAvatarUpload = (file) => {
-    // 1. 检查文件扩展名
-    const fileName = file.name;
-    const validExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
-    const extension = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
-    const hasValidExtension = validExtensions.includes(extension);
-
-    // 2. 检查MIME类型
-    const validMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    const hasValidMimeType = validMimeTypes.includes(file.type);
-
-    // 3. 检查文件大小
-    const isLt2M = file.size / 1024 / 1024 < 2;
-
-    // 如果扩展名或MIME类型不匹配，直接拒绝
-    if (!hasValidExtension || !hasValidMimeType) {
-      ElMessage.error('上传头像图片只能是 JPG/JPEG/PNG/GIF 格式!');
-      return false;
-    }
-
-    if (!isLt2M) {
-      ElMessage.error('上传头像图片大小不能超过 2MB!');
-      return false;
-    }
-
-    // 4. 更进一步：通过文件头部特征验证真实文件类型
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = (e) => {
-        try {
-          // 读取文件头部前几个字节
-          const header = new Uint8Array(e.target.result.slice(0, 12));
-          
-          // 检查常见图片格式的文件头特征
-          const isJPEG = header[0] === 0xFF && header[1] === 0xD8; // JPEG文件头
-          const isPNG = header[0] === 0x89 && header[1] === 0x50 && header[2] === 0x4E && header[3] === 0x47; // PNG文件头
-          const isGIF = header[0] === 0x47 && header[1] === 0x49 && header[2] === 0x46; // GIF文件头
-          
-          if (!isJPEG && !isPNG && !isGIF) {
-            ElMessage.error('检测到无效的图片文件，请上传正确格式的图片!');
-            resolve(false);
-            return;
-          }
-          
-          resolve(true);
-        } catch (error) {
-          ElMessage.error('文件验证失败，请重试!');
-          resolve(false);
-        }
-      };
-      // 只读文件的前12个字节来进行验证
-      reader.readAsArrayBuffer(file.slice(0, 12));
-    });
-  };
-
-  // 头像上传成功处理
-  const handleAvatarSuccess = (res) => {
-    if (res.code === '200') {
-      form.avatar = res.data;
-      ElMessage.success('头像上传成功');
-    } else {
-      ElMessage.error(res.msg || '头像上传失败');
-    }
-  };
-
-  // 头像上传失败处理
-  const handleAvatarError = (err) => {
-    ElMessage.error('上传失败，请检查文件类型或网络连接');
-    console.error('头像上传错误:', err);
   };
 
   // 注册方法

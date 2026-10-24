@@ -239,6 +239,7 @@
         }).then(res => {
           if (res.code === '200') {
             // 答案正确，进入下一步
+            form.resetToken = res.data.resetToken
             step.value = 3
           } else {
             // 答案错误，显示提示
@@ -260,6 +261,7 @@
         request.post('/resetPassword', {
           username: form.username,
           securityAnswer: form.securityAnswer,
+          resetToken: form.resetToken,
           newPassword: form.newPassword
         }).then(res => {
           if (res.code === '200') {
