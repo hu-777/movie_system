@@ -20,6 +20,8 @@ request.interceptors.response.use(response => {
 }, async error => {
   const status = error.response?.status
   error.message = error.response?.data?.msg || error.message
+  // Silent identity checks must also discard the previous session's CSRF token.
+  if (status === 401 && error.config?.url !== '/login') clearCsrf()
   if (status === 401 && !error.config?.quietAuth && error.config?.url !== '/login') {
     clearCsrf(); window.dispatchEvent(new Event('auth-expired'))
     if (!reporting) { reporting = true; ElMessage.warning('登录已失效，请重新登录'); setTimeout(() => reporting = false, 1500) }
